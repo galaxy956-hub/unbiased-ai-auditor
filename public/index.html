@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Unbiased AI Auditor — Detect, measure, and mitigate algorithmic bias in hiring, lending, and healthcare decisions.">
+    <title>Unbiased AI | Fairness Auditor — Powered by Gemini</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav id="main-nav">
+        <div class="nav-brand">
+            <div class="brand-icon">⚖️</div>
+            <span class="brand-name">Unbiased<span class="brand-accent">AI</span></span>
+        </div>
+        <div class="nav-tabs" id="nav-tabs">
+            <button class="tab-btn active" data-tab="home" onclick="AppRouter.go('home')">Home</button>
+            <button class="tab-btn" data-tab="explorer" onclick="AppRouter.go('explorer')">Data Explorer</button>
+            <button class="tab-btn" data-tab="metrics" onclick="AppRouter.go('metrics')">Bias Metrics</button>
+            <button class="tab-btn" data-tab="visuals" onclick="AppRouter.go('visuals')">Visualizations</button>
+            <button class="tab-btn" data-tab="lab" onclick="AppRouter.go('lab')">Mitigation Lab</button>
+            <button class="tab-btn" data-tab="report" onclick="AppRouter.go('report')">Audit Report</button>
+        </div>
+        <div class="nav-status" id="nav-status">
+            <span class="status-dot"></span>
+            <span id="status-label">No dataset loaded</span>
+        </div>
+    </nav>
+
+    <!-- Global Config Bar -->
+    <div class="config-bar" id="config-bar" style="display:none;">
+        <div class="config-inner">
+            <div class="config-item">
+                <label>Dataset</label>
+                <select id="cfg-dataset" onchange="AppState.switchDataset(this.value)">
+                    <option value="hiring">HR Hiring Pipeline</option>
+                    <option value="lending">Bank Loan Approval</option>
+                    <option value="healthcare">Healthcare Risk Scoring</option>
+                </select>
+            </div>
+            <div class="config-item">
+                <label>Protected Attribute</label>
+                <select id="cfg-protected" onchange="AppState.setProtected(this.value)"></select>
+            </div>
+            <div class="config-item">
+                <label>Outcome Column</label>
+                <select id="cfg-outcome" onchange="AppState.setOutcome(this.value)"></select>
+            </div>
+            <div class="config-item">
+                <label>Reference Group</label>
+                <select id="cfg-reference" onchange="AppState.setReference(this.value)"></select>
+            </div>
+            <div class="config-item">
+                <label>n = <span id="cfg-count">0</span> rows</label>
+                <button class="btn-sm btn-outline" onclick="AppRouter.go('explorer')">Upload CSV</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main id="app-main">
+
+        <!-- HOME TAB -->
+        <section id="tab-home" class="tab-pane active">
+            <div class="hero-section">
+                <div class="hero-bg-orbs">
+                    <div class="orb orb-1"></div>
+                    <div class="orb orb-2"></div>
+                    <div class="orb orb-3"></div>
+                </div>
+                <div class="hero-content">
+                    <div class="hero-badge">Industry-Standard Fairness Metrics</div>
+                    <h1 class="hero-title">Detecting Bias in<br><span class="gradient-text">Automated Decisions</span></h1>
+                    <p class="hero-subtitle">Computer programs now make life-changing decisions about who gets a job, a bank loan, or medical care. Unbiased AI gives organizations the tools to measure, flag, and fix algorithmic discrimination before it impacts real people.</p>
+                    <div class="hero-cta-row">
+                        <button class="btn-primary" onclick="AppRouter.go('explorer')">Start Auditing →</button>
+                        <button class="btn-outline" onclick="AppState.loadDemo('hiring'); AppRouter.go('metrics');">Load Demo Dataset</button>
+                    </div>
+                    <div class="hero-stats-row">
+                        <div class="hero-stat"><div class="stat-num" id="hs-metrics">8</div><div class="stat-label">Fairness Metrics</div></div>
+                        <div class="hero-stat"><div class="stat-num" id="hs-datasets">3</div><div class="stat-label">Demo Domains</div></div>
+                        <div class="hero-stat"><div class="stat-num" id="hs-strategies">3</div><div class="stat-label">Mitigation Strategies</div></div>
+                        <div class="hero-stat"><div class="stat-num" id="hs-regs">3</div><div class="stat-label">Regulatory Frameworks</div></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="home-scenarios">
+                <h2 class="section-title">Choose a Domain to Audit</h2>
+                <div class="scenario-grid">
+                    <div class="scenario-card" onclick="AppState.loadDemo('hiring'); AppRouter.go('metrics');">
+                        <div class="scenario-icon">👔</div>
+                        <h3>HR Hiring Pipeline</h3>
+                        <p>500 candidates across gender and racial groups. Uncover disparate impact in technical role screening, interview scoring, and final hiring decisions.</p>
+                        <div class="scenario-meta">
+                            <span class="badge badge-critical">🚨 High Bias Detected</span>
+                            <span class="tag">500 rows · 8 columns</span>
+                        </div>
+                    </div>
+                    <div class="scenario-card" onclick="AppState.loadDemo('lending'); AppRouter.go('metrics');">
+                        <div class="scenario-icon">🏦</div>
+                        <h3>Bank Loan Approval</h3>
+                        <p>400 loan applications with income, credit, and demographic data. Reveals redlining patterns and age-based discrimination in lending decisions.</p>
+                        <div class="scenario-meta">
+                            <span class="badge badge-warning">⚠️ Moderate Bias</span>
+                            <span class="tag">400 rows · 9 columns</span>
+                        </div>
+                    </div>
+                    <div class="scenario-card" onclick="AppState.loadDemo('healthcare'); AppRouter.go('metrics');">
+                        <div class="scenario-icon">🏥</div>
+                        <h3>Healthcare Risk Scoring</h3>
+                        <p>350 patients with clinical and demographic features. Models the well-documented racial bias in commercial health risk algorithms (Optum study).</p>
+                        <div class="scenario-meta">
+                            <span class="badge badge-critical">🚨 Systemic Bias</span>
+                            <span class="tag">350 rows · 8 columns</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="home-how">
+                <h2 class="section-title">How It Works</h2>
+                <div class="steps-row">
+                    <div class="step-card">
+                        <div class="step-num">01</div>
+                        <h4>Load Data</h4>
+                        <p>Upload a CSV or use one of our built-in realistic demo datasets.</p>
+                    </div>
+                    <div class="step-arrow">→</div>
+                    <div class="step-card">
+                        <div class="step-num">02</div>
+                        <h4>Configure</h4>
+                        <p>Select protected attributes, outcome columns, and reference groups.</p>
+                    </div>
+                    <div class="step-arrow">→</div>
+                    <div class="step-card">
+                        <div class="step-num">03</div>
+                        <h4>Measure</h4>
+                        <p>Compute 8 industry-standard fairness metrics with regulatory thresholds.</p>
+                    </div>
+                    <div class="step-arrow">→</div>
+                    <div class="step-card">
+                        <div class="step-num">04</div>
+                        <h4>Mitigate</h4>
+                        <p>Apply algorithmic debiasing and compare before vs. after outcomes.</p>
+                    </div>
+                    <div class="step-arrow">→</div>
+                    <div class="step-card">
+                        <div class="step-num">05</div>
+                        <h4>Report</h4>
+                        <p>Export a full audit report with regulatory compliance checklist.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- DATA EXPLORER TAB -->
+        <section id="tab-explorer" class="tab-pane">
+            <div id="explorer-root"></div>
+        </section>
+
+        <!-- BIAS METRICS TAB -->
+        <section id="tab-metrics" class="tab-pane">
+            <div id="metrics-root"></div>
+        </section>
+
+        <!-- VISUALIZATIONS TAB -->
+        <section id="tab-visuals" class="tab-pane">
+            <div id="visuals-root"></div>
+        </section>
+
+        <!-- MITIGATION LAB TAB -->
+        <section id="tab-lab" class="tab-pane">
+            <div id="lab-root"></div>
+        </section>
+
+        <!-- AUDIT REPORT TAB -->
+        <section id="tab-report" class="tab-pane">
+            <div id="report-root"></div>
+        </section>
+    </main>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay" style="display:none;">
+        <div class="spinner"></div>
+        <p>Computing fairness metrics…</p>
+    </div>
+
+    <!-- Scripts — order matters -->
+    <script src="data/datasets.js"></script>
+    <script src="engine/parser.js"></script>
+    <script src="engine/metrics.js"></script>
+    <script src="engine/mitigation.js"></script>
+    <script src="ui/explorer.js"></script>
+    <script src="ui/metricsUI.js"></script>
+    <script src="ui/chartsUI.js"></script>
+    <script src="ui/labUI.js"></script>
+    <script src="ui/reportUI.js"></script>
+    <script src="ui/aiUI.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
