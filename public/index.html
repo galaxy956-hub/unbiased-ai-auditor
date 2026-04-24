@@ -23,7 +23,11 @@
             <button class="tab-btn" data-tab="explorer" onclick="AppRouter.go('explorer')">Data Explorer</button>
             <button class="tab-btn" data-tab="metrics" onclick="AppRouter.go('metrics')">Bias Metrics</button>
             <button class="tab-btn" data-tab="visuals" onclick="AppRouter.go('visuals')">Visualizations</button>
+            <button class="tab-btn" data-tab="whatif" onclick="AppRouter.go('whatif')">What-If</button>
+            <button class="tab-btn" data-tab="bounty" onclick="AppRouter.go('bounty')">Bias Bounty</button>
             <button class="tab-btn" data-tab="lab" onclick="AppRouter.go('lab')">Mitigation Lab</button>
+            <button class="tab-btn" data-tab="monitor" onclick="AppRouter.go('monitor')">Monitoring</button>
+            <button class="tab-btn" data-tab="policy" onclick="AppRouter.go('policy')">Policy</button>
             <button class="tab-btn" data-tab="report" onclick="AppRouter.go('report')">Audit Report</button>
         </div>
         <div class="nav-status" id="nav-status">
@@ -174,9 +178,29 @@
             <div id="visuals-root"></div>
         </section>
 
+        <!-- WHAT-IF ANALYSIS TAB -->
+        <section id="tab-whatif" class="tab-pane">
+            <div id="whatif-root"></div>
+        </section>
+
+        <!-- BIAS BOUNTY TAB -->
+        <section id="tab-bounty" class="tab-pane">
+            <div id="bounty-root"></div>
+        </section>
+
         <!-- MITIGATION LAB TAB -->
         <section id="tab-lab" class="tab-pane">
             <div id="lab-root"></div>
+        </section>
+
+        <!-- MONITORING TAB -->
+        <section id="tab-monitor" class="tab-pane">
+            <div id="monitor-root"></div>
+        </section>
+
+        <!-- POLICY TAB -->
+        <section id="tab-policy" class="tab-pane">
+            <div id="policy-root"></div>
         </section>
 
         <!-- AUDIT REPORT TAB -->
@@ -192,6 +216,7 @@
     </div>
 
     <!-- Scripts — order matters -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="data/datasets.js"></script>
     <script src="engine/parser.js"></script>
     <script src="engine/metrics.js"></script>
@@ -199,7 +224,11 @@
     <script src="ui/explorer.js"></script>
     <script src="ui/metricsUI.js"></script>
     <script src="ui/chartsUI.js"></script>
+    <script src="ui/whatifUI.js"></script>
+    <script src="ui/bountyUI.js"></script>
     <script src="ui/labUI.js"></script>
+    <script src="ui/monitorUI.js"></script>
+    <script src="ui/policyUI.js"></script>
     <script src="ui/reportUI.js"></script>
     <script src="ui/aiUI.js"></script>
     <script src="app.js"></script>

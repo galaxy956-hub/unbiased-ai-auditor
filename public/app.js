@@ -14,6 +14,8 @@ const AppState = {
   metrics: null,
   labMethod: 'reweighing',
   labStrength: 0.7,
+  whatIfRow: null,
+  monitoringData: [],
 
   loadDemo(key) {
     const cfg = Datasets.configs[key];
@@ -30,6 +32,7 @@ const AppState = {
       referenceGroup: cfg.referenceGroup,
     };
     this.columnInfo = DataParser.getColumnInfo(data, cfg.columns);
+    this.whatIfRow = data[0] ? { ...data[0] } : null;
     this._computeMetrics();
     this._syncConfigBar();
     this._updateNavStatus();
@@ -162,7 +165,11 @@ const AppRouter = {
       case 'explorer': ExplorerUI.render(document.getElementById('explorer-root'), AppState); break;
       case 'metrics':  MetricsUI.render(document.getElementById('metrics-root'), AppState); break;
       case 'visuals':  ChartsUI.render(document.getElementById('visuals-root'), AppState); break;
+      case 'whatif':   WhatIfUI.render(document.getElementById('whatif-root'), AppState); break;
+      case 'bounty':   BountyUI.render(document.getElementById('bounty-root'), AppState); break;
       case 'lab':      LabUI.render(document.getElementById('lab-root'), AppState); break;
+      case 'monitor':  MonitorUI.render(document.getElementById('monitor-root'), AppState); break;
+      case 'policy':   PolicyUI.render(document.getElementById('policy-root'), AppState); break;
       case 'report':   ReportUI.render(document.getElementById('report-root'), AppState); break;
     }
   }

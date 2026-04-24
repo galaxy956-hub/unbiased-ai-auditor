@@ -22,6 +22,19 @@
   --shadow-glow: 0 0 40px rgba(99,102,241,0.15);
 }
 
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInScale {
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.animate-slide { animation: slideUp 0.5s ease-out forwards; }
+.animate-fade { animation: fadeInScale 0.4s ease-out forwards; }
+
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 html { scroll-behavior: smooth; }
@@ -84,9 +97,9 @@ body {
 .config-item select:focus { outline: none; border-color: var(--primary); }
 
 /* ── TABS ── */
-.tab-pane { display: none; animation: fadeIn 0.3s ease; }
-.tab-pane.active { display: block; }
-@keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+.tab-pane { display: none; }
+.tab-pane.active { display: block; animation: fadeInScale 0.4s ease-out forwards; }
+@keyframes fadeInScale { from{opacity:0;transform:scale(0.98)} to{opacity:1;transform:scale(1)} }
 
 /* ── HOME: HERO ── */
 .hero-section {

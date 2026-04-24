@@ -42,9 +42,11 @@ const LabUI = {
           <div style="font-size:0.8rem;color:var(--text-dim);line-height:1.7;">${desc.summary}</div>
           <div style="font-size:0.75rem;color:var(--warning);margin-top:0.5rem;">⚖️ Trade-off: ${desc.tradeoff}</div>
         </div>
-        <div style="margin-top:1rem;">
+        <div style="margin-top:1rem; display:flex; gap:0.75rem;">
           <button class="btn-primary" id="lab-run-btn" onclick="LabUI.run()">▶ Apply Mitigation</button>
+          <button class="ai-btn" id="ai-code-btn" onclick="AiUI.generateRemediationCode(AppState.metrics, AppState.config, '${method}', (Datasets.configs[AppState.datasetKey] || {}).label || 'Custom')">✨ Get Python Remediation Code</button>
         </div>
+        <div id="ai-code-box" class="ai-narrative-box" style="margin-top:1rem;"></div>
       </div>
 
       <!-- Results -->
@@ -168,6 +170,31 @@ const LabUI = {
             </tbody>
           </table>
         </div>
+        <div style="margin-top:1.5rem; text-align:right;">
+          <button class="btn-success" id="btn-apply-fix" onclick="LabUI.applyPermanentFix()">✅ Commit Mitigated Dataset to Platform</button>
+        </div>
       </div>`;
+  },
+
+  applyPermanentFix() {
+    if (!this._mitigatedMetrics) return;
+    const btn = document.getElementById('btn-apply-fix');
+    btn.textContent = '🚀 Applying...';
+    btn.disabled = true;
+
+    setTimeout(() => {
+      // Create mitigated data
+      const method = AppState.labMethod || 'reweighing';
+      const strength = AppState.labStrength !== undefined ? AppState.labStrength : 0.7;
+      const mitigatedData = Mitigation.apply(AppState.data, AppState.config, method, strength);
+      
+      AppState.data = mitigatedData;
+      AppState.metrics = this._mitigatedMetrics;
+      
+      alert('Success! The platform has been updated with the mitigated dataset. You can now download the refreshed Audit Report.');
+      
+      // Refresh all UIs
+      AppRouter.go('report');
+    }, 1000);
   }
 };

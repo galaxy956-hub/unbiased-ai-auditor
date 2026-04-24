@@ -1,4 +1,14 @@
 const BiasMetrics = {
+  thresholds: {
+    disparateImpact: 0.8,
+    statisticalParity: 0.1,
+    equalOpportunity: 0.1,
+    equalizedOdds: 0.1,
+    predictiveParity: 0.1,
+    calibration: 0.1,
+    individualFairness: 0.15,
+    intersectionality: 0.25
+  },
 
   // Run all applicable metrics and return a results object
   computeAll(data, config) {
@@ -54,7 +64,8 @@ const BiasMetrics = {
       results[g] = g === referenceGroup ? 1 : r / refRate;
     });
     const minRatio = Math.min(...Object.values(results));
-    return { byGroup: results, value: minRatio, threshold: 0.8, status: this._status(minRatio, 0.8, 1.0, 'above') };
+    const t = this.thresholds.disparateImpact;
+    return { byGroup: results, value: minRatio, threshold: t, status: this._status(minRatio, t, 1.0, 'above') };
   },
 
   statisticalParity(rates, referenceGroup) {
@@ -62,7 +73,8 @@ const BiasMetrics = {
     const diffs = {};
     Object.entries(rates).forEach(([g, r]) => { diffs[g] = r - refRate; });
     const maxDiff = Math.max(...Object.values(diffs).map(Math.abs));
-    return { byGroup: diffs, value: maxDiff, threshold: 0.1, status: this._status(maxDiff, 0.1, 0.05, 'below') };
+    const t = this.thresholds.statisticalParity;
+    return { byGroup: diffs, value: maxDiff, threshold: t, status: this._status(maxDiff, t, t/2, 'below') };
   },
 
   equalOpportunity(data, groups, protectedAttr, outcomeAttr, gtAttr, referenceGroup) {
@@ -75,7 +87,8 @@ const BiasMetrics = {
     const diffs = {};
     Object.entries(tpr).forEach(([g, r]) => { diffs[g] = r - refTPR; });
     const maxDiff = Math.max(...Object.values(diffs).map(Math.abs));
-    return { byGroup: tpr, diffs, value: maxDiff, threshold: 0.1, status: this._status(maxDiff, 0.1, 0.05, 'below') };
+    const t = this.thresholds.equalOpportunity;
+    return { byGroup: tpr, diffs, value: maxDiff, threshold: t, status: this._status(maxDiff, t, t/2, 'below') };
   },
 
   equalizedOdds(data, groups, protectedAttr, outcomeAttr, gtAttr, referenceGroup) {
@@ -90,7 +103,8 @@ const BiasMetrics = {
     const tprDiffs = {}, fprDiffs = {};
     Object.keys(tpr).forEach(g => { tprDiffs[g] = tpr[g] - refTPR; fprDiffs[g] = fpr[g] - refFPR; });
     const maxDiff = Math.max(...Object.keys(tpr).map(g => Math.max(Math.abs(tprDiffs[g]), Math.abs(fprDiffs[g]))));
-    return { tpr, fpr, tprDiffs, fprDiffs, value: maxDiff, threshold: 0.1, status: this._status(maxDiff, 0.1, 0.05, 'below') };
+    const t = this.thresholds.equalizedOdds;
+    return { tpr, fpr, tprDiffs, fprDiffs, value: maxDiff, threshold: t, status: this._status(maxDiff, t, t/2, 'below') };
   },
 
   predictiveParity(data, groups, protectedAttr, outcomeAttr, gtAttr, referenceGroup) {
@@ -103,7 +117,8 @@ const BiasMetrics = {
     const diffs = {};
     Object.entries(precision).forEach(([g, p]) => { diffs[g] = p - refPrec; });
     const maxDiff = Math.max(...Object.values(diffs).map(Math.abs));
-    return { byGroup: precision, diffs, value: maxDiff, threshold: 0.1, status: this._status(maxDiff, 0.1, 0.05, 'below') };
+    const t = this.thresholds.predictiveParity;
+    return { byGroup: precision, diffs, value: maxDiff, threshold: t, status: this._status(maxDiff, t, t/2, 'below') };
   },
 
   calibration(data, groups, protectedAttr, outcomeAttr, scoreAttr, referenceGroup) {
@@ -132,7 +147,8 @@ const BiasMetrics = {
       });
     });
     const value = count > 0 ? totalErr / count : 0;
-    return { byGroup: calByGroup, value: Math.round(value * 1000) / 1000, threshold: 0.1, status: this._status(value, 0.1, 0.05, 'below') };
+    const t = this.thresholds.calibration;
+    return { byGroup: calByGroup, value: Math.round(value * 1000) / 1000, threshold: t, status: this._status(value, t, t/2, 'below') };
   },
 
   confusionByGroup(data, groups, protectedAttr, outcomeAttr, gtAttr) {
@@ -178,7 +194,8 @@ const BiasMetrics = {
       }
     });
     const value = checks > 0 ? totalInconsistency / checks : 0;
-    return { value: Math.round(value * 1000) / 1000, threshold: 0.15, status: this._status(value, 0.15, 0.08, 'below') };
+    const t = this.thresholds.individualFairness;
+    return { value: Math.round(value * 1000) / 1000, threshold: t, status: this._status(value, t, t/2, 'below') };
   },
 
   intersectionality(data, protectedAttr, outcomeAttr, config) {
@@ -207,7 +224,8 @@ const BiasMetrics = {
 
     const rates = Object.values(combos).map(c => c.rate);
     const spread = rates.length > 1 ? Math.max(...rates) - Math.min(...rates) : 0;
-    return { combinations: combos, crossAttr, value: Math.round(spread * 1000) / 1000, threshold: 0.25, status: this._status(spread, 0.25, 0.15, 'below') };
+    const t = this.thresholds.intersectionality;
+    return { combinations: combos, crossAttr, value: Math.round(spread * 1000) / 1000, threshold: t, status: this._status(spread, t, t/2, 'below') };
   },
 
   _status(value, critThreshold, warnThreshold, direction) {

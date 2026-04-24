@@ -97,6 +97,46 @@ const AiUI = {
     }
   },
 
+  // ── AI REMEDIATION CODE (Lab tab) ──────────────────────────────────────────
+  async generateRemediationCode(metrics, config, method, datasetLabel) {
+    const box = document.getElementById('ai-code-box');
+    const btn = document.getElementById('ai-code-btn');
+    if (!box || !btn) return;
+
+    btn.disabled = true;
+    btn.textContent = '✨ Generating Code…';
+    box.innerHTML = `<div class="ai-loading">✨ Gemini is architecting your fairness pipeline…</div>`;
+    box.style.display = 'block';
+
+    try {
+      const resp = await fetch('/api/ai/code', {
+         method: 'POST',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify({ metrics, config, method, datasetLabel })
+      });
+      const data = await resp.json();
+      
+      let html = `<div class="ai-result-text" style="margin-bottom:1rem;">${data.explanation}</div>`;
+      if (data.code) {
+        // Extract code from markdown if present
+        const code = data.code.includes('```') ? data.code.split('```')[1].replace('python\n', '') : data.code;
+        html += `<div class="code-wrap">
+          <div class="code-header">
+            <span>Python / Fairlearn</span>
+            <button onclick="navigator.clipboard.writeText(this.parentNode.nextElementSibling.textContent); this.textContent='Copied!'">Copy</button>
+          </div>
+          <pre class="code-block">${code.trim()}</pre>
+        </div>`;
+      }
+      box.innerHTML = html;
+    } catch (err) {
+      box.innerHTML = `<div class="ai-error">Failed to reach AI: ${err.message}</div>`;
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '✨ Get Python Remediation Code';
+    }
+  },
+
   // ── CHAT WIDGET ─────────────────────────────────────────────────────────────
   chatOpen: false,
   chatHistory: [],
@@ -230,5 +270,10 @@ _aiStyle.textContent = `
 #chat-input{flex:1;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:.5rem .8rem;border-radius:8px;font-size:.8rem;font-family:inherit;outline:none;}
 #chat-input:focus{border-color:var(--primary);}
 .chat-send-btn{background:var(--primary);border:none;color:#fff;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;}
+/* Code Blocks */
+.code-wrap{background:var(--bg);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-top:.5rem;}
+.code-header{padding:.4rem .8rem;background:var(--surface2);display:flex;justify-content:space-between;align-items:center;font-size:.7rem;color:var(--text-muted);border-bottom:1px solid var(--border);}
+.code-header button{background:transparent;border:none;color:var(--primary-light);cursor:pointer;font-size:.7rem;font-weight:600;}
+.code-block{padding:1rem;font-family:monospace;font-size:.75rem;color:var(--text-dim);overflow-x:auto;margin:0;}
 `;
 document.head.appendChild(_aiStyle);

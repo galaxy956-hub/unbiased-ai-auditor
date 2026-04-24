@@ -165,6 +165,52 @@ Keep each recommendation to 2-3 sentences. Use plain language. No markdown heade
 });
 
 /**
+ * POST /api/ai/code
+ * Body: { metrics, config, method, datasetLabel }
+ * Returns: { code: string, explanation: string }
+ */
+app.post('/api/ai/code', async (req, res) => {
+  try {
+    const { metrics, config, method, datasetLabel } = req.body;
+    if (!metrics || !method) return res.status(400).json({ error: 'Missing metrics or method' });
+
+    const prompt = `You are a Senior Machine Learning Engineer specializing in AI Fairness. 
+Generate a Python code snippet using the Fairlearn library to apply the "${method}" mitigation technique to the "${datasetLabel}" dataset.
+
+Context:
+- Protected attribute: ${config.protectedAttr}
+- Target variable: ${config.outcomeAttr}
+- Key bias detected: ${metrics.disparateImpact?.value?.toFixed(3)} Disparate Impact
+
+The code should:
+1. Import necessary Fairlearn components (e.g., ExponentiatedGradient, DemographicParity).
+2. Show how to wrap a standard scikit-learn classifier (like LogisticRegression).
+3. Demonstrate how to fit the model with fairness constraints.
+4. Briefly explain what the code does.
+
+Use best practices. Assume the data is in a pandas DataFrame named 'df'.
+Return the response in two parts:
+[EXPLANATION]
+... brief explanation ...
+[CODE]
+\`\`\`python
+... code ...
+\`\`\`
+`;
+
+    const result = await gemini(prompt);
+    const [explanation, codePart] = result.split('[CODE]');
+    const cleanExplanation = explanation.replace('[EXPLANATION]', '').trim();
+    const cleanCode = codePart ? codePart.trim() : '';
+    
+    res.json({ explanation: cleanExplanation, code: cleanCode });
+  } catch (err) {
+    console.error('/api/ai/code error:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/**
  * POST /api/ai/chat
  * Body: { message, context: { metrics, config, datasetLabel } }
  * Returns: { reply: string }
