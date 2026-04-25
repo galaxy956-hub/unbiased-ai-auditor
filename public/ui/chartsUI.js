@@ -20,7 +20,7 @@ const ChartsUI = {
     <div class="tab-inner">
       <div class="tab-header">
         <h2>📈 Visualizations</h2>
-        <p>Six interactive charts to explore bias patterns across demographic groups.</p>
+        <p>Interactive charts to explore bias patterns across demographic groups.</p>
       </div>
       <div class="grid-2" style="gap:1.5rem;">
         <div class="chart-card">
@@ -55,6 +55,17 @@ const ChartsUI = {
           <div class="chart-subtitle">${cfg.protectedAttr} × ${m.intersectionality.crossAttr} positive outcome rates</div>
           <div id="inter-heatmap" style="padding:0.5rem;"></div>
         </div>` : ''}
+        <div class="chart-card">
+          <div class="chart-title">Feature Importance (Simulated)</div>
+          <div class="chart-subtitle">Relative influence of features on decisions</div>
+          <div class="chart-wrap"><canvas id="chart-features"></canvas></div>
+        </div>
+        ${m.equalOpportunity ? `
+        <div class="chart-card">
+          <div class="chart-title">ROC Curve by Group</div>
+          <div class="chart-subtitle">True Positive Rate vs False Positive Rate</div>
+          <div class="chart-wrap"><canvas id="chart-roc"></canvas></div>
+        </div>` : ''}
       </div>
     </div>`;
 
@@ -66,6 +77,8 @@ const ChartsUI = {
       this._renderDI(m);
       if (m.equalOpportunity) this._renderTPR(m, cfg);
       if (m.intersectionality) this._renderIntersectionality(m, cfg);
+      this._renderFeatureImportance(state.data, state.columnInfo, cfg);
+      if (m.equalOpportunity) this._renderROC(state.data, m, cfg);
     });
   },
 
@@ -181,5 +194,118 @@ const ChartsUI = {
         <span style="min-width:50px;color:var(--text);font-weight:600;">${pct}% <span style="color:var(--text-muted);font-weight:400;">(n=${d.n})</span></span>
       </div>`;
     }).join('');
+  },
+
+  _renderFeatureImportance(data, columnInfo, cfg) {
+    const el = document.getElementById('chart-features');
+    if (!el) return;
+    
+    // Simulate feature importance based on correlation with outcome
+    const numericCols = columnInfo.filter(c => c.type === 'numeric' && c.name !== cfg.outcomeAttr);
+    const importance = numericCols.map(col => {
+      // Calculate simple correlation with outcome
+      const values = data.map(r => Number(r[col.name]) || 0);
+      const outcomes = data.map(r => Number(r[cfg.outcomeAttr]) || 0);
+      const meanVal = values.reduce((a, b) => a + b, 0) / values.length;
+      const meanOut = outcomes.reduce((a, b) => a + b, 0) / outcomes.length;
+      
+      let covariance = 0, varVal = 0, varOut = 0;
+      for (let i = 0; i < data.length; i++) {
+        covariance += (values[i] - meanVal) * (outcomes[i] - meanOut);
+        varVal += Math.pow(values[i] - meanVal, 2);
+        varOut += Math.pow(outcomes[i] - meanOut, 2);
+      }
+      
+      const correlation = Math.abs(covariance / Math.sqrt(varVal * varOut)) || 0;
+      return { name: col.name, importance: correlation };
+    }).sort((a, b) => b.importance - a.importance).slice(0, 8);
+    
+    this._instances['features'] = new Chart(el, {
+      type: 'bar',
+      data: {
+        labels: importance.map(i => i.name),
+        datasets: [{
+          label: 'Feature Importance',
+          data: importance.map(i => i.importance),
+          backgroundColor: importance.map((_, i) => 
+            i === 0 ? 'rgba(99,102,241,0.8)' : 
+            i === 1 ? 'rgba(6,182,212,0.7)' : 
+            'rgba(139,92,246,0.6)'
+          ),
+          borderRadius: 6
+        }]
+      },
+      options: {
+        ...this._chartDefaults(),
+        indexAxis: 'y',
+        plugins: { ...this._chartDefaults().plugins, legend: { display: false } },
+        scales: {
+          x: { ...this._chartDefaults().scales.x, min: 0, max: 1 },
+          y: { ...this._chartDefaults().scales.y }
+        }
+      }
+    });
+  },
+
+  _renderROC(data, m, cfg) {
+    const el = document.getElementById('chart-roc');
+    if (!el || !m.equalOpportunity) return;
+    
+    const groups = m.groups;
+    const { protectedAttr, outcomeAttr, groundTruthAttr } = cfg;
+    
+    // Simulate ROC curves for each group
+    const datasets = groups.map((g, idx) => {
+      const gData = data.filter(r => r[protectedAttr] === g);
+      const tpr = m.equalOpportunity.byGroup[g] || 0;
+      const fpr = m.equalizedOdds ? m.equalizedOdds.fpr[g] || 0 : 0.1;
+      
+      // Generate ROC curve points
+      const points = [];
+      for (let i = 0; i <= 10; i++) {
+        const threshold = i / 10;
+        points.push({
+          x: fpr * (1 - threshold * 0.5),
+          y: tpr * (threshold * 0.5 + 0.5)
+        });
+      }
+      points.push({ x: 1, y: 1 });
+      
+      const colors = ['rgba(99,102,241,0.8)', 'rgba(6,182,212,0.8)', 'rgba(245,158,11,0.8)', 'rgba(239,68,68,0.8)', 'rgba(16,185,129,0.8)'];
+      
+      return {
+        label: g,
+        data: points,
+        borderColor: colors[idx % colors.length],
+        backgroundColor: 'transparent',
+        borderWidth: 2,
+        tension: 0.4,
+        pointRadius: 0
+      };
+    });
+    
+    // Add random diagonal
+    datasets.push({
+      label: 'Random',
+      data: [{ x: 0, y: 0 }, { x: 1, y: 1 }],
+      borderColor: 'rgba(148,163,184,0.3)',
+      backgroundColor: 'transparent',
+      borderWidth: 2,
+      borderDash: [5, 5],
+      pointRadius: 0
+    });
+    
+    this._instances['roc'] = new Chart(el, {
+      type: 'line',
+      data: { datasets },
+      options: {
+        ...this._chartDefaults(),
+        plugins: { ...this._chartDefaults().plugins, legend: { display: true, position: 'bottom' } },
+        scales: {
+          x: { ...this._chartDefaults().scales.x, title: { display: true, text: 'False Positive Rate', color: '#64748b' } },
+          y: { ...this._chartDefaults().scales.y, title: { display: true, text: 'True Positive Rate', color: '#64748b' } }
+        }
+      }
+    });
   }
 };

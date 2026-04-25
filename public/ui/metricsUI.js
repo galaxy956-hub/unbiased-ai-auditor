@@ -41,6 +41,9 @@ const MetricsUI = {
         ${m.calibration ? this._cardCal(m) : ''}
         ${m.individualFairness ? this._cardIF(m) : ''}
         ${m.intersectionality ? this._cardInter(m) : ''}
+        ${m.counterfactualFairness ? this._cardCF(m) : ''}
+        ${m.treatmentInequality ? this._cardTI(m) : ''}
+        ${m.consistency ? this._cardCS(m) : ''}
       </div>
 
       ${m.confusionByGroup ? this._confusionSection(m, state.config) : ''}
@@ -57,6 +60,9 @@ const MetricsUI = {
       ['Cal', m.calibration?.status],
       ['IF', m.individualFairness?.status],
       ['IX', m.intersectionality?.status],
+      ['CF', m.counterfactualFairness?.status],
+      ['TI', m.treatmentInequality?.status],
+      ['CS', m.consistency?.status],
     ].filter(([,s]) => s);
     return checks.map(([name, status]) =>
       `<span class="badge badge-${status}">${name}</span>`
@@ -157,6 +163,39 @@ const MetricsUI = {
       topCombos.map(([label, d]) => ({ g: label, rate: d.rate, display: (d.rate*100).toFixed(0)+'% (n='+d.n+')' })),
       ix.value > 0.25 ? `⚠️ Significant bias amplification detected at the intersection of demographic groups. Some combined identities face compounded disadvantage not visible in individual metrics.`
                       : `✅ No significant intersectional amplification detected.`
+    );
+  },
+
+  _cardCF(m) {
+    const cf = m.counterfactualFairness;
+    return this._card(cf.status, 'Counterfactual Fairness',
+      'Measures how much outcomes would change if protected attributes were flipped while keeping other features constant. Detects "local" bias for specific cases.',
+      cf.value.toFixed(3), 'Threshold: inconsistency ≤ 0.15',
+      [],
+      cf.value > 0.15 ? `⚠️ High counterfactual inconsistency detected. Similar individuals from different groups receive different decisions, indicating the model relies on protected attributes.`
+                       : `✅ Outcomes remain stable under counterfactual changes to protected attributes.`
+    );
+  },
+
+  _cardTI(m) {
+    const ti = m.treatmentInequality;
+    return this._card(ti.status, 'Treatment Inequality',
+      'Measures outcome differences between groups after conditioning on similar features/scores. Detects bias that persists even among similar individuals.',
+      ti.value.toFixed(3), 'Threshold: inequality ≤ 0.1',
+      [],
+      ti.value > 0.1 ? `⚠️ Significant treatment inequality detected. Even with similar qualifications, different groups receive different outcomes.`
+                     : `✅ Treatment is equitable across groups when controlling for similar features.`
+    );
+  },
+
+  _cardCS(m) {
+    const cs = m.consistency;
+    return this._card(cs.status, 'Consistency',
+      'Measures how often similar individuals (based on all features) receive the same outcome. Uses k-nearest neighbors to assess decision consistency.',
+      cs.value.toFixed(3), 'Threshold: inconsistency ≤ 0.2',
+      [],
+      cs.value > 0.2 ? `⚠️ Low consistency detected. Similar individuals receive different decisions, indicating arbitrary or biased decision boundaries.`
+                    : `✅ High consistency - similar cases receive similar outcomes regardless of group membership.`
     );
   },
 

@@ -1,7 +1,15 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const { GoogleGenAI } = require('@google/genai');
+const { GoogleGenerativeAI } = require('@google/genai');
+<<<<<<< C:/MyProjects/unbiased-ai-auditor/server.js
+<<<<<<< C:/MyProjects/unbiased-ai-auditor/server.js
+=======
+require('dotenv').config();
+>>>>>>> C:/Users/91833/.windsurf/worktrees/unbiased-ai-auditor/unbiased-ai-auditor-309517ff/server.js
+=======
+require('dotenv').config();
+>>>>>>> C:/Users/91833/.windsurf/worktrees/unbiased-ai-auditor/unbiased-ai-auditor-309517ff/server.js
 
 const app = express();
 const PORT = parseInt(process.env.PORT) || 8080;
@@ -17,7 +25,7 @@ function getAI() {
   if (!ai) {
     const key = process.env.GEMINI_API_KEY;
     if (!key) throw new Error('GEMINI_API_KEY environment variable is not set.');
-    ai = new GoogleGenAI({ apiKey: key });
+    ai = new GoogleGenerativeAI(key);
   }
   return ai;
 }
@@ -27,15 +35,9 @@ const MODEL = 'gemini-2.0-flash';
 // Helper: call Gemini with a prompt and return text
 async function gemini(prompt) {
   const client = getAI();
-  const response = await client.models.generateContent({
-    model: MODEL,
-    contents: prompt,
-    config: {
-      temperature: 0.4,
-      maxOutputTokens: 1024,
-    }
-  });
-  return response.text();
+  const model = client.getGenerativeModel({ model: MODEL });
+  const response = await model.generateContent(prompt);
+  return response.response.text();
 }
 
 // ── API Routes ────────────────────────────────────────────────────────────────
@@ -263,6 +265,6 @@ app.get('*', (req, res) => {
 
 // ── Start ─────────────────────────────────────────────────────────────────────
 app.listen(PORT, () => {
-  console.log(`🚀 Unbiased AI Auditor running on port ${PORT}`);
-  console.log(`🤖 Gemini AI: ${process.env.GEMINI_API_KEY ? 'enabled (' + MODEL + ')' : 'disabled (set GEMINI_API_KEY)'}`);
+  console.log(` Unbiased AI Auditor running on port ${PORT}`);
+  console.log(` Gemini AI: ${process.env.GEMINI_API_KEY ? 'enabled (' + MODEL + ')' : 'disabled (set GEMINI_API_KEY)'}`);
 });

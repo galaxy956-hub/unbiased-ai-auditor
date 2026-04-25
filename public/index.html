@@ -1,40 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Unbiased AI Auditor — Detect, measure, and mitigate algorithmic bias in hiring, lending, and healthcare decisions.">
-    <title>Unbiased AI | Fairness Auditor — Powered by Gemini</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unbiased AI Auditor</title>
+  <meta name="description" content="Detect, measure, and mitigate algorithmic bias in automated decision systems. AI-powered fairness auditing tool for hiring, lending, healthcare, and more.">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
-    <!-- Navigation -->
-    <nav id="main-nav">
-        <div class="nav-brand">
-            <div class="brand-icon">⚖️</div>
-            <span class="brand-name">Unbiased<span class="brand-accent">AI</span></span>
-        </div>
-        <div class="nav-tabs" id="nav-tabs">
-            <button class="tab-btn active" data-tab="home" onclick="AppRouter.go('home')">Home</button>
-            <button class="tab-btn" data-tab="explorer" onclick="AppRouter.go('explorer')">Data Explorer</button>
-            <button class="tab-btn" data-tab="metrics" onclick="AppRouter.go('metrics')">Bias Metrics</button>
-            <button class="tab-btn" data-tab="visuals" onclick="AppRouter.go('visuals')">Visualizations</button>
-            <button class="tab-btn" data-tab="whatif" onclick="AppRouter.go('whatif')">What-If</button>
-            <button class="tab-btn" data-tab="bounty" onclick="AppRouter.go('bounty')">Bias Bounty</button>
-            <button class="tab-btn" data-tab="lab" onclick="AppRouter.go('lab')">Mitigation Lab</button>
-            <button class="tab-btn" data-tab="monitor" onclick="AppRouter.go('monitor')">Monitoring</button>
-            <button class="tab-btn" data-tab="policy" onclick="AppRouter.go('policy')">Policy</button>
-            <button class="tab-btn" data-tab="report" onclick="AppRouter.go('report')">Audit Report</button>
-        </div>
-        <div class="nav-status" id="nav-status">
-            <span class="status-dot"></span>
-            <span id="status-label">No dataset loaded</span>
-        </div>
-    </nav>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  
+  <div id="loading-overlay" class="loading-overlay" role="status" aria-live="polite">
+    <div class="spinner" aria-hidden="true"></div>
+    <p>Loading Unbiased AI Auditor...</p>
+  </div>
+
+  <nav id="main-nav" role="navigation" aria-label="Main navigation">
+    <div class="nav-brand">
+      <span class="brand-icon" aria-hidden="true">🛡️</span>
+      <span class="brand-name">Unbiased <span class="brand-accent">AI Auditor</span></span>
+    </div>
+    <div class="nav-tabs" role="tablist" aria-label="Application tabs">
+      <button class="tab-btn active" data-tab="home" role="tab" aria-selected="true" aria-controls="tab-home" tabindex="0">Home</button>
+<<<<<<< C:/MyProjects/unbiased-ai-auditor/public/index.html
+      <button class="tab-btn" data-tab="explorer" role="tab" aria-selected="false" aria-controls="tab-explorer" tabindex="0">Data Explorer</button>
+      <button class="tab-btn" data-tab="metrics" role="tab" aria-selected="false" aria-controls="tab-metrics" tabindex="0">Bias Metrics</button>
+      <button class="tab-btn" data-tab="charts" role="tab" aria-selected="false" aria-controls="tab-charts" tabindex="0">Visualizations</button>
+=======
+      <button class="tab-btn" data-tab="dashboard" role="tab" aria-selected="false" aria-controls="tab-dashboard" tabindex="0">Dashboard</button>
+      <button class="tab-btn" data-tab="explorer" role="tab" aria-selected="false" aria-controls="tab-explorer" tabindex="0">Data Explorer</button>
+      <button class="tab-btn" data-tab="metrics" role="tab" aria-selected="false" aria-controls="tab-metrics" tabindex="0">Bias Metrics</button>
+      <button class="tab-btn" data-tab="visuals" role="tab" aria-selected="false" aria-controls="tab-visuals" tabindex="0">Visualizations</button>
+>>>>>>> C:/Users/91833/.windsurf/worktrees/unbiased-ai-auditor/unbiased-ai-auditor-309517ff/public/index.html
+      <button class="tab-btn" data-tab="whatif" role="tab" aria-selected="false" aria-controls="tab-whatif" tabindex="0">What-If</button>
+      <button class="tab-btn" data-tab="bounty" role="tab" aria-selected="false" aria-controls="tab-bounty" tabindex="0">Bias Bounty</button>
+      <button class="tab-btn" data-tab="lab" role="tab" aria-selected="false" aria-controls="tab-lab" tabindex="0">Mitigation Lab</button>
+      <button class="tab-btn" data-tab="monitor" role="tab" aria-selected="false" aria-controls="tab-monitor" tabindex="0">Monitoring</button>
+      <button class="tab-btn" data-tab="policy" role="tab" aria-selected="false" aria-controls="tab-policy" tabindex="0">Policy</button>
+      <button class="tab-btn" data-tab="report" role="tab" aria-selected="false" aria-controls="tab-report" tabindex="0">Audit Report</button>
+    </div>
+    <div class="nav-status" aria-live="polite" aria-atomic="true">
+      <div class="status-dot" aria-hidden="true"></div>
+      <span id="status-text">Ready</span>
+    </div>
+  </nav>
 
     <!-- Global Config Bar -->
     <div class="config-bar" id="config-bar" style="display:none;">
@@ -45,6 +56,9 @@
                     <option value="hiring">HR Hiring Pipeline</option>
                     <option value="lending">Bank Loan Approval</option>
                     <option value="healthcare">Healthcare Risk Scoring</option>
+                    <option value="criminal">Criminal Justice Risk Assessment</option>
+                    <option value="education">Education Admission Decisions</option>
+                    <option value="insurance">Insurance Premium Pricing</option>
                 </select>
             </div>
             <div class="config-item">
@@ -67,7 +81,7 @@
     </div>
 
     <!-- Main Content -->
-    <main id="app-main">
+    <main id="main-content" role="main">
 
         <!-- HOME TAB -->
         <section id="tab-home" class="tab-pane active">
@@ -86,10 +100,10 @@
                         <button class="btn-outline" onclick="AppState.loadDemo('hiring'); AppRouter.go('metrics');">Load Demo Dataset</button>
                     </div>
                     <div class="hero-stats-row">
-                        <div class="hero-stat"><div class="stat-num" id="hs-metrics">8</div><div class="stat-label">Fairness Metrics</div></div>
-                        <div class="hero-stat"><div class="stat-num" id="hs-datasets">3</div><div class="stat-label">Demo Domains</div></div>
-                        <div class="hero-stat"><div class="stat-num" id="hs-strategies">3</div><div class="stat-label">Mitigation Strategies</div></div>
-                        <div class="hero-stat"><div class="stat-num" id="hs-regs">3</div><div class="stat-label">Regulatory Frameworks</div></div>
+                        <div class="hero-stat"><div class="stat-num" id="hs-metrics">11</div><div class="stat-label">Fairness Metrics</div></div>
+                        <div class="hero-stat"><div class="stat-num" id="hs-datasets">6</div><div class="stat-label">Demo Domains</div></div>
+                        <div class="hero-stat"><div class="stat-num" id="hs-strategies">6</div><div class="stat-label">Mitigation Strategies</div></div>
+                        <div class="hero-stat"><div class="stat-num" id="hs-regs">4</div><div class="stat-label">Regulatory Frameworks</div></div>
                     </div>
                 </div>
             </div>
@@ -124,6 +138,33 @@
                             <span class="tag">350 rows · 8 columns</span>
                         </div>
                     </div>
+                    <div class="scenario-card" onclick="AppState.loadDemo('criminal'); AppRouter.go('metrics');">
+                        <div class="scenario-icon">⚖️</div>
+                        <h3>Criminal Justice Risk Assessment</h3>
+                        <p>450 records modeling recidivism prediction bias. Examines racial disparities in risk scoring and recidivism flagging.</p>
+                        <div class="scenario-meta">
+                            <span class="badge badge-critical">🚨 High Bias Detected</span>
+                            <span class="tag">450 rows · 7 columns</span>
+                        </div>
+                    </div>
+                    <div class="scenario-card" onclick="AppState.loadDemo('education'); AppRouter.go('metrics');">
+                        <div class="scenario-icon">🎓</div>
+                        <h3>Education Admission Decisions</h3>
+                        <p>400 applications with socioeconomic status bias. Analyzes admission fairness across different SES groups.</p>
+                        <div class="scenario-meta">
+                            <span class="badge badge-warning">⚠️ Moderate Bias</span>
+                            <span class="tag">400 rows · 8 columns</span>
+                        </div>
+                    </div>
+                    <div class="scenario-card" onclick="AppState.loadDemo('insurance'); AppRouter.go('metrics');">
+                        <div class="scenario-icon">🏠</div>
+                        <h3>Insurance Premium Pricing</h3>
+                        <p>380 policies with location-based discrimination. Examines geographic bias in insurance premium calculations.</p>
+                        <div class="scenario-meta">
+                            <span class="badge badge-warning">⚠️ Moderate Bias</span>
+                            <span class="tag">380 rows · 7 columns</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -145,7 +186,7 @@
                     <div class="step-card">
                         <div class="step-num">03</div>
                         <h4>Measure</h4>
-                        <p>Compute 8 industry-standard fairness metrics with regulatory thresholds.</p>
+                        <p>Compute 11 industry-standard fairness metrics with regulatory thresholds.</p>
                     </div>
                     <div class="step-arrow">→</div>
                     <div class="step-card">
@@ -161,6 +202,11 @@
                     </div>
                 </div>
             </div>
+        </section>
+
+        <!-- DASHBOARD TAB -->
+        <section id="tab-dashboard" class="tab-pane">
+            <div id="dashboard-root"></div>
         </section>
 
         <!-- DATA EXPLORER TAB -->
@@ -216,11 +262,11 @@
     </div>
 
     <!-- Scripts — order matters -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="data/datasets.js"></script>
     <script src="engine/parser.js"></script>
     <script src="engine/metrics.js"></script>
     <script src="engine/mitigation.js"></script>
+    <script src="ui/dashboardUI.js"></script>
     <script src="ui/explorer.js"></script>
     <script src="ui/metricsUI.js"></script>
     <script src="ui/chartsUI.js"></script>
