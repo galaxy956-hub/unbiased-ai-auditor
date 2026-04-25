@@ -24,7 +24,7 @@ const LabUI = {
         <div class="control-row">
           <span class="control-label">Strategy</span>
           <div class="method-pills">
-            ${['reweighing','threshold','debiasing'].map(m => `
+            ${['reweighing','threshold','debiasing','preprocessing','postprocessing','disparate','calibrated','reject'].map(m => `
               <button class="method-pill ${m===method?'active':''}" onclick="LabUI.setMethod('${m}')">${Mitigation.descriptions[m].name}</button>
             `).join('')}
           </div>
@@ -38,9 +38,14 @@ const LabUI = {
           </div>
         </div>
         <div class="card" style="background:var(--bg2);margin-top:0.75rem;">
-          <div style="font-size:0.82rem;font-weight:700;margin-bottom:0.3rem;color:var(--primary-light);">${desc.name}</div>
-          <div style="font-size:0.8rem;color:var(--text-dim);line-height:1.7;">${desc.summary}</div>
-          <div style="font-size:0.75rem;color:var(--warning);margin-top:0.5rem;">⚖️ Trade-off: ${desc.tradeoff}</div>
+          <div style="display:flex;justify-content:space-between;align-items:start;">
+            <div>
+              <div style="font-size:0.82rem;font-weight:700;margin-bottom:0.3rem;color:var(--primary-light);">${desc.name}</div>
+              <div style="font-size:0.8rem;color:var(--text-dim);line-height:1.7;">${desc.summary}</div>
+              <div style="font-size:0.75rem;color:var(--warning);margin-top:0.5rem;">⚖️ Trade-off: ${desc.tradeoff}</div>
+            </div>
+            ${desc.accuracy ? `<div style="text-align:right;"><div style="font-size:0.7rem;color:var(--text-muted);">Expected Accuracy</div><div style="font-size:1.2rem;font-weight:800;color:var(--success);">${desc.accuracy}</div></div>` : ''}
+          </div>
         </div>
         <div style="margin-top:1rem; display:flex; gap:0.75rem;">
           <button class="btn-primary" id="lab-run-btn" onclick="LabUI.run()">▶ Apply Mitigation</button>
@@ -91,6 +96,11 @@ const LabUI = {
     const root = document.getElementById('lab-results');
     if (!root) return;
 
+    const method = AppState.labMethod || 'reweighing';
+    const accuracyInfo = Mitigation.accuracyHistory[method];
+    const accuracy = accuracyInfo?.accuracy ? (accuracyInfo.accuracy * 100).toFixed(1) + '%' : 'N/A';
+    const improvement = accuracyInfo?.improvement?.disparateImpact ? accuracyInfo.improvement.disparateImpact.toFixed(1) + '%' : 'N/A';
+
     const metricRows = [
       { key: 'disparateImpact', label: 'Disparate Impact', fmt: v => v.value?.toFixed(3) ?? '—', higherBetter: true },
       { key: 'statisticalParity', label: 'Statistical Parity', fmt: v => v.value?.toFixed(3) ?? '—', higherBetter: false },
@@ -122,10 +132,14 @@ const LabUI = {
             <div style="color:var(--text-muted);font-size:0.8rem;">${after.overallRisk.score}/100</div>
           </div>
         </div>
-        ${after.overallRisk.score > before.overallRisk.score ?
-          `<div style="text-align:center;margin-top:0.75rem;font-size:0.85rem;color:var(--success);">✅ Fairness improved by ${after.overallRisk.score - before.overallRisk.score} points</div>` :
-          `<div style="text-align:center;margin-top:0.75rem;font-size:0.85rem;color:var(--warning);">⚠️ Minimal improvement — try increasing aggressiveness</div>`
-        }
+        <div style="display:flex;justify-content:center;gap:2rem;margin-top:0.75rem;">
+          ${after.overallRisk.score > before.overallRisk.score ?
+            `<div style="font-size:0.85rem;color:var(--success);">✅ Fairness improved by ${after.overallRisk.score - before.overallRisk.score} points</div>` :
+            `<div style="font-size:0.85rem;color:var(--warning);">⚠️ Minimal improvement — try increasing aggressiveness</div>`
+          }
+          ${accuracy !== 'N/A' ? `<div style="font-size:0.85rem;color:var(--primary);">🎯 Model Accuracy: <strong>${accuracy}</strong></div>` : ''}
+          ${improvement !== 'N/A' ? `<div style="font-size:0.85rem;color:var(--success);">📈 DI Improvement: <strong>${improvement}</strong></div>` : ''}
+        </div>
       </div>
 
       <!-- Selection rates comparison -->

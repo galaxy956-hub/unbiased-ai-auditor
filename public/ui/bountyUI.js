@@ -87,8 +87,62 @@ const BountyUI = {
     resultsRoot.innerHTML = `<div class="card"><div class="spinner"></div><p class="text-center mt-1">Analyzing edge case...</p></div>`;
 
     setTimeout(() => {
-      // Simulate analysis
-      const isCritical = Math.random() < 0.3;
+      // Deterministic analysis based on input data
+      const { protectedAttr, outcomeAttr, referenceGroup } = AppState.config;
+      const inputGroup = data[protectedAttr];
+      const isReference = inputGroup === referenceGroup;
+      
+      // Calculate score-based risk
+      let riskScore = 0;
+      const numericFields = AppState.columnInfo.filter(c => c.type === 'numeric');
+      
+      numericFields.forEach(field => {
+        const value = Number(data[field.name]) || 0;
+        const mean = field.mean || 0;
+        const std = (field.max - field.min) / 4 || 1;
+        const zScore = Math.abs((value - mean) / std);
+        
+        // Higher z-score (outlier) increases risk
+        if (zScore > 2) riskScore += 0.3;
+        else if (zScore > 1.5) riskScore += 0.15;
+        else if (zScore > 1) riskScore += 0.05;
+      });
+      
+      // Non-reference groups have higher baseline risk
+      if (!isReference) riskScore += 0.2;
+      
+      // Check if this combination exists in dataset
+      const similarRows = AppState.data.filter(row => {
+        let match = true;
+        Object.keys(data).forEach(key => {
+          if (row[key] !== undefined && row[key] !== null) {
+            const rowVal = Number(row[key]) || row[key];
+            const inputVal = Number(data[key]) || data[key];
+            if (Math.abs(rowVal - inputVal) > 0.1 && rowVal !== inputVal) {
+              match = false;
+            }
+          }
+        });
+        return match;
+      });
+      
+      // If similar rows exist with poor outcomes, increase risk
+      if (similarRows.length > 0) {
+        const positiveRate = similarRows.filter(r => Number(r[outcomeAttr]) === 1).length / similarRows.length;
+        if (positiveRate < 0.3) riskScore += 0.3;
+        else if (positiveRate < 0.5) riskScore += 0.15;
+      }
+      
+      // Cap risk at 1.0
+      riskScore = Math.min(riskScore, 1.0);
+      const isCritical = riskScore >= 0.5;
+      
+      // Calculate confidence based on similar rows
+      const confidence = similarRows.length > 10 ? 95 : similarRows.length > 5 ? 88 : similarRows.length > 0 ? 75 : 60;
+      
+      // Calculate metric impact
+      const diImpact = isCritical ? (riskScore * 0.15).toFixed(3) : (riskScore * 0.05).toFixed(3);
+      
       resultsRoot.innerHTML = `
         <div class="card ${isCritical ? 'critical' : 'pass'}">
           <div class="label">Analysis Result</div>
@@ -102,12 +156,20 @@ const BountyUI = {
           </p>
           <hr class="divider">
           <div class="delta-row">
+            <span class="delta-name">Risk Score</span>
+            <span class="delta-before">${(riskScore * 100).toFixed(0)}%</span>
+          </div>
+          <div class="delta-row">
             <span class="delta-name">Confidence</span>
-            <span class="delta-before">88%</span>
+            <span class="delta-before">${confidence}%</span>
+          </div>
+          <div class="delta-row">
+            <span class="delta-name">Similar Cases</span>
+            <span class="delta-before">${similarRows.length}</span>
           </div>
           <div class="delta-row">
             <span class="delta-name">Metric Impact</span>
-            <span class="delta-before">+0.04 Disparate Impact</span>
+            <span class="delta-before">+${diImpact} Disparate Impact</span>
           </div>
           <button class="btn-sm btn-outline mt-2" onclick="BountyUI.reset()">Reset Test</button>
         </div>

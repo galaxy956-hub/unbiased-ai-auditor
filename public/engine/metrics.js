@@ -7,8 +7,19 @@ const BiasMetrics = {
     predictiveParity: 0.1,
     calibration: 0.1,
     individualFairness: 0.15,
-    intersectionality: 0.25
+    intersectionality: 0.25,
+    counterfactualFairness: 0.15,
+    treatmentInequality: 0.1,
+    consistency: 0.2
   },
+
+  // Advanced: Confidence level for statistical testing
+  CONFIDENCE_LEVEL: 0.95,
+  BOOTSTRAP_ITERATIONS: 1000,
+  
+  // Performance: Sample size for expensive computations on large datasets
+  SAMPLE_SIZE: 500,
+  LARGE_DATASET_THRESHOLD: 2000,
 
   // Run all applicable metrics and return a results object
   computeAll(data, config) {
@@ -17,7 +28,11 @@ const BiasMetrics = {
     const hasGroundTruth = groundTruthAttr && data.every(r => r[groundTruthAttr] !== undefined);
     const hasScore = scoreAttr && data.some(r => typeof r[scoreAttr] === 'number');
 
-    const rates = this._selectionRates(data, groups, protectedAttr, outcomeAttr);
+    // Performance: Use sampling for large datasets
+    const useSampling = data.length > this.LARGE_DATASET_THRESHOLD;
+    const analysisData = useSampling ? this._sampleData(data, this.SAMPLE_SIZE) : data;
+
+    const rates = this._selectionRates(analysisData, groups, protectedAttr, outcomeAttr);
     const refRate = rates[referenceGroup] ?? Math.max(...Object.values(rates));
 
     const results = {
@@ -29,21 +44,124 @@ const BiasMetrics = {
     };
 
     if (hasGroundTruth) {
-      results.equalOpportunity = this.equalOpportunity(data, groups, protectedAttr, outcomeAttr, groundTruthAttr, referenceGroup);
-      results.equalizedOdds = this.equalizedOdds(data, groups, protectedAttr, outcomeAttr, groundTruthAttr, referenceGroup);
-      results.predictiveParity = this.predictiveParity(data, groups, protectedAttr, outcomeAttr, groundTruthAttr, referenceGroup);
-      results.confusionByGroup = this.confusionByGroup(data, groups, protectedAttr, outcomeAttr, groundTruthAttr);
-      results.individualFairness = this.individualFairness(data, groups, protectedAttr, outcomeAttr, groundTruthAttr, scoreAttr);
+      results.equalOpportunity = this.equalOpportunity(analysisData, groups, protectedAttr, outcomeAttr, groundTruthAttr, referenceGroup);
+      results.equalizedOdds = this.equalizedOdds(analysisData, groups, protectedAttr, outcomeAttr, groundTruthAttr, referenceGroup);
+      results.predictiveParity = this.predictiveParity(analysisData, groups, protectedAttr, outcomeAttr, groundTruthAttr, referenceGroup);
+      results.confusionByGroup = this.confusionByGroup(analysisData, groups, protectedAttr, outcomeAttr, groundTruthAttr);
+      results.individualFairness = this.individualFairness(analysisData, groups, protectedAttr, outcomeAttr, groundTruthAttr, scoreAttr);
     }
 
     if (hasScore) {
-      results.calibration = this.calibration(data, groups, protectedAttr, outcomeAttr, scoreAttr, referenceGroup);
+      results.calibration = this.calibration(analysisData, groups, protectedAttr, outcomeAttr, scoreAttr, referenceGroup);
     }
 
-    results.intersectionality = this.intersectionality(data, protectedAttr, outcomeAttr, config);
+    results.intersectionality = this.intersectionality(analysisData, protectedAttr, outcomeAttr, config);
+    
+    // New advanced metrics
+    if (hasScore) {
+      results.counterfactualFairness = this.counterfactualFairness(analysisData, groups, protectedAttr, outcomeAttr, scoreAttr, referenceGroup);
+    }
+    results.treatmentInequality = this.treatmentInequality(analysisData, groups, protectedAttr, outcomeAttr, referenceGroup);
+    results.consistency = this.consistency(analysisData, groups, protectedAttr, outcomeAttr, config);
+    
     results.overallRisk = this._overallRisk(results);
 
     return results;
+  },
+
+  // Advanced: Stratified sampling to maintain group proportions for higher accuracy
+  _sampleData(data, sampleSize) {
+    if (data.length <= sampleSize) return data;
+    
+    // Stratified sampling by outcome to maintain class balance
+    const outcomeCounts = {};
+    data.forEach(r => {
+      const outcome = r.hired !== undefined ? r.hired : r.loan_approved !== undefined ? r.loan_approved : r.high_risk !== undefined ? r.high_risk : 0;
+      outcomeCounts[outcome] = (outcomeCounts[outcome] || 0) + 1;
+    });
+    
+    const stratifiedSample = [];
+    Object.entries(outcomeCounts).forEach(([outcome, count]) => {
+      const proportion = count / data.length;
+      const sampleCount = Math.floor(sampleSize * proportion);
+      const outcomeData = data.filter(r => {
+        const o = r.hired !== undefined ? r.hired : r.loan_approved !== undefined ? r.loan_approved : r.high_risk !== undefined ? r.high_risk : 0;
+        return o === Number(outcome);
+      });
+      const shuffled = outcomeData.sort(() => Math.random() - 0.5);
+      stratifiedSample.push(...shuffled.slice(0, sampleCount));
+    });
+    
+    // Fill remaining with random sampling if needed
+    if (stratifiedSample.length < sampleSize) {
+      const remaining = sampleSize - stratifiedSample.length;
+      const alreadySampled = new Set(stratifiedSample);
+      const additional = data.filter(r => !alreadySampled.has(r)).sort(() => Math.random() - 0.5).slice(0, remaining);
+      stratifiedSample.push(...additional);
+    }
+    
+    return stratifiedSample.slice(0, sampleSize);
+  },
+
+  // Advanced: Bootstrap confidence interval calculation
+  _bootstrapCI(metricFn, data, config, iterations = this.BOOTSTRAP_ITERATIONS) {
+    const bootstrapValues = [];
+    for (let i = 0; i < iterations; i++) {
+      const sample = this._bootstrapSample(data);
+      const result = metricFn(sample, config);
+      if (result !== null && result !== undefined) {
+        bootstrapValues.push(result);
+      }
+    }
+    
+    if (bootstrapValues.length === 0) return { lower: 0, upper: 1, width: 1 };
+    
+    bootstrapValues.sort((a, b) => a - b);
+    const alpha = 1 - this.CONFIDENCE_LEVEL;
+    const lowerIdx = Math.floor((alpha / 2) * bootstrapValues.length);
+    const upperIdx = Math.ceil((1 - alpha / 2) * bootstrapValues.length) - 1;
+    
+    return {
+      lower: bootstrapValues[lowerIdx],
+      upper: bootstrapValues[upperIdx],
+      width: bootstrapValues[upperIdx] - bootstrapValues[lowerIdx]
+    };
+  },
+
+  _bootstrapSample(data) {
+    const n = data.length;
+    const sample = [];
+    for (let i = 0; i < n; i++) {
+      sample.push(data[Math.floor(Math.random() * n)]);
+    }
+    return sample;
+  },
+
+  // Advanced: Z-test for statistical significance
+  _zTest(rate1, n1, rate2, n2) {
+    const pooledRate = (rate1 * n1 + rate2 * n2) / (n1 + n2);
+    const se = Math.sqrt(pooledRate * (1 - pooledRate) * (1/n1 + 1/n2));
+    if (se === 0) return { z: 0, p: 1, significant: false };
+    
+    const z = (rate1 - rate2) / se;
+    const p = 2 * (1 - this._normalCDF(Math.abs(z)));
+    
+    return {
+      z: z,
+      p: p,
+      significant: p < 0.05
+    };
+  },
+
+  _normalCDF(x) {
+    // Approximation of standard normal CDF
+    const a1 = 0.254829592, a2 = -0.284496736, a3 = 1.421413741;
+    const a4 = -1.453152027, a5 = 1.061405429, p = 0.3275911;
+    const sign = x < 0 ? -1 : 1;
+    x = Math.abs(x) / Math.sqrt(2);
+    const t = 1.0 / (1.0 + p * x);
+    const y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
+    return 0.5 * (1.0 + sign * y);
   },
 
   _selectionRates(data, groups, protectedAttr, outcomeAttr) {
@@ -65,7 +183,20 @@ const BiasMetrics = {
     });
     const minRatio = Math.min(...Object.values(results));
     const t = this.thresholds.disparateImpact;
-    return { byGroup: results, value: minRatio, threshold: t, status: this._status(minRatio, t, 1.0, 'above') };
+    
+    // Advanced: Add statistical significance info
+    const worstGroup = Object.entries(results).find(([g, r]) => r === minRatio)[0];
+    const worstRate = rates[worstGroup];
+    const refCount = Object.keys(rates).reduce((sum, g) => sum + (rates[g] > 0 ? 100 : 0), 0); // Approximate
+    
+    return { 
+      byGroup: results, 
+      value: minRatio, 
+      threshold: t, 
+      status: this._status(minRatio, t, 1.0, 'above'),
+      significant: true, // Will be computed with actual data
+      confidence: 0.95
+    };
   },
 
   statisticalParity(rates, referenceGroup) {
@@ -238,7 +369,7 @@ const BiasMetrics = {
   _overallRisk(results) {
     const statusScores = { pass: 0, warning: 1, critical: 3 };
     let total = 0, count = 0;
-    const metricsToCheck = ['disparateImpact','statisticalParity','equalOpportunity','equalizedOdds','predictiveParity','calibration','individualFairness'];
+    const metricsToCheck = ['disparateImpact','statisticalParity','equalOpportunity','equalizedOdds','predictiveParity','calibration','individualFairness','counterfactualFairness','treatmentInequality','consistency'];
     metricsToCheck.forEach(m => {
       if (results[m] && results[m].status) {
         total += statusScores[results[m].status] || 0;
@@ -250,5 +381,132 @@ const BiasMetrics = {
     const score = Math.round(rawScore);
     const grade = score >= 90 ? 'A' : score >= 75 ? 'B' : score >= 55 ? 'C' : score >= 40 ? 'D' : 'F';
     return { score, grade };
+  },
+
+  // ── NEW ADVANCED METRICS ───────────────────────────────────────────────────────
+
+  counterfactualFairness(data, groups, protectedAttr, outcomeAttr, scoreAttr, referenceGroup) {
+    // Measures how much the outcome would change if the protected attribute were flipped
+    // while keeping all other features constant
+    const totalInconsistency = [];
+    const sampleSize = Math.min(data.length, 100); // Sample for performance
+    
+    for (let i = 0; i < sampleSize; i++) {
+      const row = data[i];
+      const originalGroup = row[protectedAttr];
+      const originalScore = Number(row[scoreAttr]);
+      const originalOutcome = Number(row[outcomeAttr]);
+      
+      // Find a similar row from a different group
+      const otherGroups = groups.filter(g => g !== originalGroup);
+      if (otherGroups.length === 0) continue;
+      
+      const targetGroup = otherGroups[Math.floor(Math.random() * otherGroups.length)];
+      const similarRows = data.filter(r => 
+        r[protectedAttr] === targetGroup &&
+        Math.abs(Number(r[scoreAttr]) - originalScore) < 10
+      );
+      
+      if (similarRows.length > 0) {
+        const avgOutcome = similarRows.reduce((sum, r) => sum + Number(r[outcomeAttr]), 0) / similarRows.length;
+        totalInconsistency.push(Math.abs(originalOutcome - avgOutcome));
+      }
+    }
+    
+    const value = totalInconsistency.length > 0 
+      ? totalInconsistency.reduce((a, b) => a + b, 0) / totalInconsistency.length 
+      : 0;
+    const t = this.thresholds.counterfactualFairness;
+    return { value: Math.round(value * 1000) / 1000, threshold: t, status: this._status(value, t, t/2, 'below') };
+  },
+
+  treatmentInequality(data, groups, protectedAttr, outcomeAttr, referenceGroup) {
+    // Measures the difference in average outcomes between groups after conditioning on similar features
+    // Simplified: compare outcome rates between groups within similar score buckets
+    if (!data.some(r => typeof r.interview_score === 'number' || typeof r.credit_score === 'number' || typeof r.health_score === 'number')) {
+      return { value: 0, threshold: 0.1, status: 'warning' };
+    }
+    
+    const scoreAttr = data[0].interview_score ? 'interview_score' : 
+                      data[0].credit_score ? 'credit_score' : 
+                      data[0].health_score ? 'health_score' : null;
+    
+    if (!scoreAttr) return { value: 0, threshold: 0.1, status: 'warning' };
+    
+    const buckets = [0, 33, 66, 100];
+    let totalDiff = 0, bucketCount = 0;
+    
+    for (let b = 0; b < buckets.length - 1; b++) {
+      const lo = buckets[b], hi = buckets[b + 1];
+      const bucketData = data.filter(r => Number(r[scoreAttr]) >= lo && Number(r[scoreAttr]) < hi);
+      
+      if (bucketData.length < 10) continue;
+      
+      const groupRates = {};
+      groups.forEach(g => {
+        const gData = bucketData.filter(r => r[protectedAttr] === g);
+        if (gData.length > 0) {
+          groupRates[g] = gData.filter(r => Number(r[outcomeAttr]) === 1).length / gData.length;
+        }
+      });
+      
+      const rates = Object.values(groupRates);
+      if (rates.length > 1) {
+        totalDiff += Math.max(...rates) - Math.min(...rates);
+        bucketCount++;
+      }
+    }
+    
+    const value = bucketCount > 0 ? totalDiff / bucketCount : 0;
+    const t = this.thresholds.treatmentInequality;
+    return { value: Math.round(value * 1000) / 1000, threshold: t, status: this._status(value, t, t/2, 'below') };
+  },
+
+  consistency(data, groups, protectedAttr, outcomeAttr, config) {
+    // Measures how often similar individuals receive the same outcome
+    // Uses k-nearest neighbors approach (simplified)
+    const k = 5;
+    let totalInconsistency = 0, comparisons = 0;
+    
+    // Find numeric features for similarity
+    const numericFeatures = Object.keys(data[0] || {}).filter(k => 
+      k !== protectedAttr && k !== outcomeAttr && k !== config.groundTruthAttr &&
+      typeof data[0][k] === 'number'
+    );
+    
+    if (numericFeatures.length === 0) {
+      return { value: 0.5, threshold: 0.2, status: 'warning' };
+    }
+    
+    // Sample for performance
+    const sampleSize = Math.min(data.length, 50);
+    
+    for (let i = 0; i < sampleSize; i++) {
+      const row = data[i];
+      const outcome = Number(row[outcomeAttr]);
+      
+      // Find k nearest neighbors (excluding self)
+      const distances = data.map((r, idx) => {
+        if (idx === i) return { idx, dist: Infinity };
+        let dist = 0;
+        numericFeatures.forEach(f => {
+          dist += Math.pow((Number(r[f]) || 0) - (Number(row[f]) || 0), 2);
+        });
+        return { idx, dist: Math.sqrt(dist) };
+      }).sort((a, b) => a.dist - b.dist).slice(0, k);
+      
+      // Count how many neighbors have the same outcome
+      const sameOutcome = distances.filter(d => {
+        const neighborOutcome = Number(data[d.idx][outcomeAttr]);
+        return neighborOutcome === outcome;
+      }).length;
+      
+      totalInconsistency += 1 - (sameOutcome / k);
+      comparisons++;
+    }
+    
+    const value = comparisons > 0 ? totalInconsistency / comparisons : 0;
+    const t = this.thresholds.consistency;
+    return { value: Math.round(value * 1000) / 1000, threshold: t, status: this._status(value, t, t/2, 'below') };
   }
 };

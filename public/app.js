@@ -162,6 +162,7 @@ const AppRouter = {
 
   _renderTab(tabId) {
     switch(tabId) {
+      case 'dashboard': DashboardUI.render(document.getElementById('dashboard-root'), AppState); break;
       case 'explorer': ExplorerUI.render(document.getElementById('explorer-root'), AppState); break;
       case 'metrics':  MetricsUI.render(document.getElementById('metrics-root'), AppState); break;
       case 'visuals':  ChartsUI.render(document.getElementById('visuals-root'), AppState); break;
@@ -180,6 +181,15 @@ window.addEventListener('DOMContentLoaded', () => {
   // Load hiring dataset by default
   AppState.loadDemo('hiring');
   AppRouter.go('home');
+  
+  // Add tab click listeners
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tabId = btn.getAttribute('data-tab');
+      AppRouter.go(tabId);
+    });
+  });
+  
   // Init Gemini AI features
   if (typeof AiUI !== 'undefined') {
     AiUI.showBanner();

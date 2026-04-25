@@ -1,0 +1,11 @@
+id,age,gender,race,education,experience_yrs,interview_score,qualified,hired
+1,28,Male,White,Bachelor's,5,72,1,1
+2,32,Female,Black,Master's,8,68,1,0
+3,25,Male,Hispanic,Bachelor's,3,65,1,0
+4,35,Female,White,PhD,12,85,1,1
+5,29,Male,Asian,Master's,6,78,1,1
+6,27,Female,Black,Bachelor's,4,58,1,0
+7,40,Male,White,Master's,15,82,1,1
+8,31,Female,Hispanic,Bachelor's,7,62,1,0
+9,26,Male,Black,Bachelor's,3,55,0,0
+10,33,Female,White,PhD,9,88,1,1
