@@ -35,6 +35,33 @@ const Datasets = {
       scoreAttr: 'health_score',
       referenceGroup: 'White',
       columns: ['id','age','gender','race','income','num_conditions','health_score','actually_high_risk','flagged_high_risk']
+    },
+    criminal: {
+      label: 'Criminal Justice Risk Assessment',
+      protectedAttr: 'race',
+      outcomeAttr: 'recidivism_flagged',
+      groundTruthAttr: 'actually_reoffended',
+      scoreAttr: 'risk_score',
+      referenceGroup: 'White',
+      columns: ['id','age','gender','race','prior_offenses','risk_score','actually_reoffended','recidivism_flagged']
+    },
+    education: {
+      label: 'Education Admission Decisions',
+      protectedAttr: 'socioeconomic_status',
+      outcomeAttr: 'admitted',
+      groundTruthAttr: 'qualified',
+      scoreAttr: 'admission_score',
+      referenceGroup: 'High',
+      columns: ['id','age','gender','race','socioeconomic_status','gpa','admission_score','qualified','admitted']
+    },
+    insurance: {
+      label: 'Insurance Premium Pricing',
+      protectedAttr: 'location_type',
+      outcomeAttr: 'high_premium',
+      groundTruthAttr: 'high_risk',
+      scoreAttr: 'risk_factor',
+      referenceGroup: 'Suburban',
+      columns: ['id','age','gender','location_type','claims_history','risk_factor','high_risk','high_premium']
     }
   },
 
@@ -43,6 +70,9 @@ const Datasets = {
       case 'hiring':     return this.generateHiring();
       case 'lending':    return this.generateLending();
       case 'healthcare': return this.generateHealthcare();
+      case 'criminal':   return this.generateCriminal();
+      case 'education':  return this.generateEducation();
+      case 'insurance':  return this.generateInsurance();
       default: return [];
     }
   },
@@ -173,6 +203,119 @@ const Datasets = {
       const flagged_high_risk = health_score >= 50 ? 1 : 0;
 
       data.push({ id: i+1, age, gender, race, income, num_conditions, health_score, actually_high_risk, flagged_high_risk });
+    }
+    return data;
+  },
+
+  generateCriminal() {
+    const rng = createRNG(44);
+    const data = [];
+    const races = ['White', 'Black', 'Hispanic'];
+    const raceWeights = [0.4, 0.35, 0.25];
+
+    function weightedChoice(arr, weights, r) {
+      let acc = 0;
+      for (let i = 0; i < weights.length; i++) {
+        acc += weights[i];
+        if (r < acc) return arr[i];
+      }
+      return arr[arr.length - 1];
+    }
+
+    for (let i = 0; i < 450; i++) {
+      const race = weightedChoice(races, raceWeights, rng());
+      const age = Math.floor(rng() * 40) + 18;
+      const gender = rng() < 0.85 ? 'Male' : 'Female';
+      const priorOffenses = Math.floor(rng() * 6);
+      const riskScore = Math.floor(rng() * 40) + 30 + (race === 'Black' ? 10 : 0) + (priorOffenses * 5);
+      const actuallyReoffended = priorOffenses > 2 && rng() > 0.4;
+      const recidivismFlagged = riskScore > 60 && (race === 'White' || rng() > 0.5);
+
+      data.push({
+        id: i + 1,
+        age, gender, race,
+        prior_offenses: priorOffenses,
+        risk_score: riskScore,
+        actually_reoffended: actuallyReoffended ? 1 : 0,
+        recidivism_flagged: recidivismFlagged ? 1 : 0
+      });
+    }
+    return data;
+  },
+
+  generateEducation() {
+    const rng = createRNG(45);
+    const data = [];
+    const ses = ['High', 'Medium', 'Low'];
+    const sesWeights = [0.3, 0.5, 0.2];
+    const races = ['White', 'Black', 'Hispanic', 'Asian'];
+    const raceWeights = [0.4, 0.25, 0.2, 0.15];
+
+    function weightedChoice(arr, weights, r) {
+      let acc = 0;
+      for (let i = 0; i < weights.length; i++) {
+        acc += weights[i];
+        if (r < acc) return arr[i];
+      }
+      return arr[arr.length - 1];
+    }
+
+    for (let i = 0; i < 400; i++) {
+      const socioeconomic = weightedChoice(ses, sesWeights, rng());
+      const race = weightedChoice(races, raceWeights, rng());
+      const age = Math.floor(rng() * 8) + 17;
+      const gender = rng() < 0.5 ? 'Male' : 'Female';
+      const gpa = (rng() * 2.5 + 1.5 + (socioeconomic === 'High' ? 0.3 : socioeconomic === 'Low' ? -0.2 : 0)).toFixed(2);
+      const admissionScore = Math.floor(parseFloat(gpa) * 20 + rng() * 20 + (socioeconomic === 'High' ? 10 : socioeconomic === 'Low' ? -5 : 0));
+      const qualified = parseFloat(gpa) > 2.5;
+      const admitted = qualified && (socioeconomic === 'High' || rng() > 0.6);
+
+      data.push({
+        id: i + 1,
+        age, gender, race,
+        socioeconomic_status: socioeconomic,
+        gpa: parseFloat(gpa),
+        admission_score: admissionScore,
+        qualified: qualified ? 1 : 0,
+        admitted: admitted ? 1 : 0
+      });
+    }
+    return data;
+  },
+
+  generateInsurance() {
+    const rng = createRNG(46);
+    const data = [];
+    const locations = ['Suburban', 'Urban', 'Rural'];
+    const locWeights = [0.4, 0.35, 0.25];
+
+    function weightedChoice(arr, weights, r) {
+      let acc = 0;
+      for (let i = 0; i < weights.length; i++) {
+        acc += weights[i];
+        if (r < acc) return arr[i];
+      }
+      return arr[arr.length - 1];
+    }
+
+    for (let i = 0; i < 380; i++) {
+      const location = weightedChoice(locations, locWeights, rng());
+      const age = Math.floor(rng() * 50) + 25;
+      const gender = rng() < 0.5 ? 'Male' : 'Female';
+      const claimsHistory = Math.floor(rng() * 4);
+      const riskFactor = Math.floor(rng() * 50) + 20 + (location === 'Urban' ? 15 : location === 'Rural' ? 5 : 0) + (claimsHistory * 10);
+      const highRisk = riskFactor > 55 || claimsHistory > 2;
+      const highPremium = highRisk && (location === 'Suburban' || rng() > 0.5);
+
+      data.push({
+        id: i + 1,
+        age, gender,
+        location_type: location,
+        claims_history: claimsHistory,
+        risk_factor: riskFactor,
+        high_risk: highRisk ? 1 : 0,
+        high_premium: highPremium ? 1 : 0
+      });
     }
     return data;
   }

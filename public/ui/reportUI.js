@@ -1,12 +1,13 @@
 const ReportUI = {
   render(root, state) {
     if (!state.data.length || !state.metrics) {
-      root.innerHTML = `<div class="tab-inner"><div class="empty-state"><div class="empty-icon">📄</div><p>Load a dataset to generate an audit report.</p><button class="btn-primary mt-2" onclick="AppRouter.go('explorer')">Get Started</button></div></div>`;
+      root.innerHTML = `<div class="tab-inner"><div class="empty-state">Load a dataset and compute metrics to generate a report.</div></div>`;
       return;
     }
+
     const m = state.metrics;
     const cfg = state.config;
-    const datasetLabel = (Datasets.configs[state.datasetKey] || {}).label || 'Custom Dataset';
+    const datasetLabel = state.datasetKey ? (Datasets.configs[state.datasetKey]?.label || 'Custom Dataset') : 'Custom Dataset';
     const date = new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
 
     root.innerHTML = `
@@ -19,6 +20,7 @@ const ReportUI = {
       <!-- Export bar -->
       <div class="export-bar" style="margin-bottom:1.5rem;">
         <button class="btn-primary btn-sm" onclick="ReportUI.exportJSON()">⬇ Export JSON Report</button>
+        <button class="btn-outline btn-sm" onclick="ReportUI.exportExcel()">📊 Export Excel (CSV)</button>
         <button class="btn-outline btn-sm" onclick="ReportUI.downloadScorecard()">📄 Download Scorecard (PDF)</button>
         <button class="btn-outline btn-sm" onclick="window.print()">🖨 Print to PDF</button>
       </div>
@@ -204,12 +206,58 @@ const ReportUI = {
         calibration: m.calibration ? { value: m.calibration.value, status: m.calibration.status } : null,
         individualFairness: m.individualFairness,
         intersectionality: m.intersectionality ? { value: m.intersectionality.value, status: m.intersectionality.status } : null,
+        counterfactualFairness: m.counterfactualFairness,
+        treatmentInequality: m.treatmentInequality,
+        consistency: m.consistency,
       }
     };
     const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url; a.download = `fairness-audit-${Date.now()}.json`;
+    a.click(); URL.revokeObjectURL(url);
+  },
+
+  exportExcel() {
+    // Export as CSV that can be opened in Excel
+    const m = AppState.metrics;
+    const cfg = AppState.config;
+    const datasetLabel = (Datasets.configs[AppState.datasetKey] || {}).label || 'Custom Dataset';
+    
+    let csv = 'Fairness Audit Report\n';
+    csv += `Dataset,${datasetLabel}\n`;
+    csv += `Generated,${new Date().toISOString()}\n`;
+    csv += `Protected Attribute,${cfg.protectedAttr}\n`;
+    csv += `Reference Group,${cfg.referenceGroup}\n`;
+    csv += `Total Records,${AppState.data.length}\n`;
+    csv += `Overall Grade,${m.overallRisk.grade}\n`;
+    csv += `Overall Score,${m.overallRisk.score}\n\n`;
+    
+    csv += 'Metric,Value,Threshold,Status\n';
+    const metrics = [
+      { name: 'Disparate Impact', val: m.disparateImpact?.value, thresh: '≥ 0.8', status: m.disparateImpact?.status },
+      { name: 'Statistical Parity', val: m.statisticalParity?.value, thresh: '≤ 0.1', status: m.statisticalParity?.status },
+      { name: 'Equal Opportunity', val: m.equalOpportunity?.value, thresh: '≤ 0.1', status: m.equalOpportunity?.status },
+      { name: 'Equalized Odds', val: m.equalizedOdds?.value, thresh: '≤ 0.1', status: m.equalizedOdds?.status },
+      { name: 'Predictive Parity', val: m.predictiveParity?.value, thresh: '≤ 0.1', status: m.predictiveParity?.status },
+      { name: 'Calibration', val: m.calibration?.value, thresh: '≤ 0.1', status: m.calibration?.status },
+      { name: 'Individual Fairness', val: m.individualFairness?.value, thresh: '≤ 0.15', status: m.individualFairness?.status },
+      { name: 'Intersectionality', val: m.intersectionality?.value, thresh: '≤ 0.25', status: m.intersectionality?.status },
+      { name: 'Counterfactual Fairness', val: m.counterfactualFairness?.value, thresh: '≤ 0.15', status: m.counterfactualFairness?.status },
+      { name: 'Treatment Inequality', val: m.treatmentInequality?.value, thresh: '≤ 0.1', status: m.treatmentInequality?.status },
+      { name: 'Consistency', val: m.consistency?.value, thresh: '≤ 0.2', status: m.consistency?.status },
+    ];
+    
+    metrics.forEach(metric => {
+      if (metric.val !== undefined) {
+        csv += `${metric.name},${metric.val?.toFixed(3) || 'N/A'},${metric.thresh},${metric.status}\n`;
+      }
+    });
+    
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `fairness-audit-${Date.now()}.csv`;
     a.click(); URL.revokeObjectURL(url);
   },
 
