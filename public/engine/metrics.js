@@ -13,11 +13,6 @@ const BiasMetrics = {
     consistency: 0.2
   },
 
-<<<<<<< C:/MyProjects/unbiased-ai-auditor/public/engine/metrics.js
-  // Performance: Sample size for expensive computations on large datasets
-  SAMPLE_SIZE: 200,
-  LARGE_DATASET_THRESHOLD: 1000,
-=======
   // Advanced: Confidence level for statistical testing
   CONFIDENCE_LEVEL: 0.95,
   BOOTSTRAP_ITERATIONS: 1000,
@@ -25,7 +20,6 @@ const BiasMetrics = {
   // Performance: Sample size for expensive computations on large datasets
   SAMPLE_SIZE: 500,
   LARGE_DATASET_THRESHOLD: 2000,
->>>>>>> C:/Users/91833/.windsurf/worktrees/unbiased-ai-auditor/unbiased-ai-auditor-309517ff/public/engine/metrics.js
 
   // Run all applicable metrics and return a results object
   computeAll(data, config) {
@@ -75,15 +69,6 @@ const BiasMetrics = {
     return results;
   },
 
-<<<<<<< C:/MyProjects/unbiased-ai-auditor/public/engine/metrics.js
-  // Performance: Stratified sampling to maintain group proportions
-  _sampleData(data, sampleSize) {
-    if (data.length <= sampleSize) return data;
-    
-    // Simple random sampling for now (can be enhanced to stratified)
-    const shuffled = [...data].sort(() => Math.random() - 0.5);
-    return shuffled.slice(0, sampleSize);
-=======
   // Advanced: Stratified sampling to maintain group proportions for higher accuracy
   _sampleData(data, sampleSize) {
     if (data.length <= sampleSize) return data;
@@ -177,7 +162,6 @@ const BiasMetrics = {
     const t = 1.0 / (1.0 + p * x);
     const y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
     return 0.5 * (1.0 + sign * y);
->>>>>>> C:/Users/91833/.windsurf/worktrees/unbiased-ai-auditor/unbiased-ai-auditor-309517ff/public/engine/metrics.js
   },
 
   _selectionRates(data, groups, protectedAttr, outcomeAttr) {

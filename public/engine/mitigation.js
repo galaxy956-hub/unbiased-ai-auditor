@@ -7,15 +7,6 @@ const Mitigation = {
     let mitigatedData;
     
     switch (method) {
-<<<<<<< C:/MyProjects/unbiased-ai-auditor/public/engine/mitigation.js
-      case 'reweighing':   return this.reweighing(data, config, strength);
-      case 'threshold':    return this.thresholdOptimization(data, config, strength);
-      case 'debiasing':    return this.adversarialDebiasing(data, config, strength);
-      case 'preprocessing': return this.preprocessing(data, config, strength);
-      case 'postprocessing': return this.postprocessing(data, config, strength);
-      case 'disparate':    return this.disparateRemover(data, config, strength);
-      default:             return data;
-=======
       case 'reweighing':   mitigatedData = this.reweighing(data, config, strength); break;
       case 'threshold':    mitigatedData = this.thresholdOptimization(data, config, strength); break;
       case 'debiasing':    mitigatedData = this.adversarialDebiasing(data, config, strength); break;
@@ -25,7 +16,7 @@ const Mitigation = {
       case 'calibrated':   mitigatedData = this.calibratedEqualizedOdds(data, config, strength); break;
       case 'reject':       mitigatedData = this.rejectOptionClassification(data, config, strength); break;
       default:             mitigatedData = data;
->>>>>>> C:/Users/91833/.windsurf/worktrees/unbiased-ai-auditor/unbiased-ai-auditor-309517ff/public/engine/mitigation.js
+
     }
     
     const afterMetrics = this._computeBaselineMetrics(mitigatedData, config);
@@ -296,8 +287,6 @@ const Mitigation = {
     });
   },
 
-<<<<<<< C:/MyProjects/unbiased-ai-auditor/public/engine/mitigation.js
-=======
   // ── CALIBRATED EQUALIZED ODDS ───────────────────────────────────────────────────
   // Advanced: Optimizes for both equalized odds and calibration simultaneously
   // Uses probabilistic approach to maintain high accuracy (>95%)
@@ -407,7 +396,6 @@ const Mitigation = {
     return idx === -1 ? 100 : (idx / sorted.length) * 100;
   },
 
->>>>>>> C:/Users/91833/.windsurf/worktrees/unbiased-ai-auditor/unbiased-ai-auditor-309517ff/public/engine/mitigation.js
   descriptions: {
     reweighing: {
       name: 'Reweighing',
@@ -423,25 +411,6 @@ const Mitigation = {
     },
     debiasing: {
       name: 'Adversarial Debiasing',
-<<<<<<< C:/MyProjects/unbiased-ai-auditor/public/engine/mitigation.js
-      summary: 'Simulates training a model that cannot predict group membership from its output. Removes the correlation between protected attributes and decisions.',
-      tradeoff: 'Most powerful approach. May require retraining the underlying model from scratch.'
-    },
-    preprocessing: {
-      name: 'Preprocessing',
-      summary: 'Modifies the training data before model training to remove bias patterns, such as boosting scores for historically disadvantaged groups.',
-      tradeoff: 'Changes the input data distribution; may not address all sources of bias if model learns new proxies.'
-    },
-    postprocessing: {
-      name: 'Postprocessing',
-      summary: 'Adjusts model predictions after they are made to ensure fairness, without changing the underlying model.',
-      tradeoff: 'Does not require model retraining; may reduce overall accuracy to achieve fairness.'
-    },
-    disparate: {
-      name: 'Disparate Impact Remover',
-      summary: 'Explicitly equalizes selection rates across groups by adjusting outcomes to meet the 4/5ths rule threshold.',
-      tradeoff: 'Directly targets legal compliance; may feel artificial as it explicitly changes outcomes.'
-=======
       summary: 'Uses an adversarial network to remove correlations between predictions and protected attributes while maintaining predictive accuracy.',
       tradeoff: 'Requires more computational resources; convergence can be sensitive to hyperparameters.',
       accuracy: '94-96%'
@@ -475,7 +444,6 @@ const Mitigation = {
       summary: 'Rejects predictions near decision boundary for uncertain cases, using ground truth for high-confidence decisions only.',
       tradeoff: 'May defer more decisions to human review; achieves highest accuracy.',
       accuracy: '96-98%'
->>>>>>> C:/Users/91833/.windsurf/worktrees/unbiased-ai-auditor/unbiased-ai-auditor-309517ff/public/engine/mitigation.js
     }
   }
 };

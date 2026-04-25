@@ -7,10 +7,7 @@ const ReportUI = {
 
     const m = state.metrics;
     const cfg = state.config;
-<<<<<<< C:/MyProjects/unbiased-ai-auditor/public/ui/reportUI.js
-=======
     const datasetLabel = state.datasetKey ? (Datasets.configs[state.datasetKey]?.label || 'Custom Dataset') : 'Custom Dataset';
->>>>>>> C:/Users/91833/.windsurf/worktrees/unbiased-ai-auditor/unbiased-ai-auditor-309517ff/public/ui/reportUI.js
     const date = new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
 
     root.innerHTML = `

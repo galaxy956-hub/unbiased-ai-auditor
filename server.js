@@ -2,14 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const { GoogleGenerativeAI } = require('@google/genai');
-<<<<<<< C:/MyProjects/unbiased-ai-auditor/server.js
-<<<<<<< C:/MyProjects/unbiased-ai-auditor/server.js
-=======
 require('dotenv').config();
->>>>>>> C:/Users/91833/.windsurf/worktrees/unbiased-ai-auditor/unbiased-ai-auditor-309517ff/server.js
-=======
-require('dotenv').config();
->>>>>>> C:/Users/91833/.windsurf/worktrees/unbiased-ai-auditor/unbiased-ai-auditor-309517ff/server.js
 
 const app = express();
 const PORT = parseInt(process.env.PORT) || 8080;

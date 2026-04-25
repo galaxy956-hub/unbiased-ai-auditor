@@ -24,11 +24,7 @@ const LabUI = {
         <div class="control-row">
           <span class="control-label">Strategy</span>
           <div class="method-pills">
-<<<<<<< C:/MyProjects/unbiased-ai-auditor/public/ui/labUI.js
-            ${['reweighing','threshold','debiasing','preprocessing','postprocessing','disparate'].map(m => `
-=======
             ${['reweighing','threshold','debiasing','preprocessing','postprocessing','disparate','calibrated','reject'].map(m => `
->>>>>>> C:/Users/91833/.windsurf/worktrees/unbiased-ai-auditor/unbiased-ai-auditor-309517ff/public/ui/labUI.js
               <button class="method-pill ${m===method?'active':''}" onclick="LabUI.setMethod('${m}')">${Mitigation.descriptions[m].name}</button>
             `).join('')}
           </div>

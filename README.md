@@ -21,27 +21,6 @@ Unbiased AI Auditor is a professional-grade tool designed for data scientists, c
 ## ✨ Features
 
 ### Core Capabilities
-<<<<<<< C:/MyProjects/unbiased-ai-auditor/README.md
-<<<<<<< C:/MyProjects/unbiased-ai-auditor/README.md
-<<<<<<< C:/MyProjects/unbiased-ai-auditor/README.md
-<<<<<<< C:/MyProjects/unbiased-ai-auditor/README.md
-<<<<<<< C:/MyProjects/unbiased-ai-auditor/README.md
-- **📊 8 Comprehensive Metrics**: Disparate Impact, Statistical Parity, Equal Opportunity, Equalized Odds, Predictive Parity, Calibration, Individual Fairness, and Intersectionality
-- **🔬 Mitigation Lab**: Experiment with Reweighing, Threshold Optimization, and Adversarial Debiasing strategies
-- **📈 Interactive Visualizations**: 6+ Chart.js visualizations including radar charts, heatmaps, and drift monitoring
-- **🔍 Counterfactual Analysis**: What-If simulator to test how changing protected attributes affects decisions
-- **🛡️ Bias Bounty Dashboard**: Edge case testing to uncover intersectional bias patterns
-- **📊 Drift Monitoring**: Real-time tracking of model performance and bias metrics over time
-- **⚖️ Policy Manager**: Configure organizational fairness thresholds and compliance targets
-=======
-=======
->>>>>>> C:/Users/91833/.windsurf/worktrees/unbiased-ai-auditor/unbiased-ai-auditor-309517ff/README.md
-=======
->>>>>>> C:/Users/91833/.windsurf/worktrees/unbiased-ai-auditor/unbiased-ai-auditor-309517ff/README.md
-=======
->>>>>>> C:/Users/91833/.windsurf/worktrees/unbiased-ai-auditor/unbiased-ai-auditor-309517ff/README.md
-=======
->>>>>>> C:/Users/91833/.windsurf/worktrees/unbiased-ai-auditor/unbiased-ai-auditor-309517ff/README.md
 - **📊 11 Comprehensive Metrics**: Disparate Impact, Statistical Parity, Equal Opportunity, Equalized Odds, Predictive Parity, Calibration, Individual Fairness, Intersectionality, Counterfactual Fairness, Treatment Inequality, and Consistency
 - **🔬 Mitigation Lab**: Experiment with 6 strategies - Reweighing, Threshold Optimization, Adversarial Debiasing, Preprocessing, Postprocessing, and Disparate Impact Remover
 - **📈 Interactive Visualizations**: 8+ Chart.js visualizations including radar charts, heatmaps, feature importance charts, ROC curves, and drift monitoring
@@ -50,19 +29,6 @@ Unbiased AI Auditor is a professional-grade tool designed for data scientists, c
 - **📊 Advanced Monitoring**: Real-time tracking with automated alerts, historical trend analysis, and threshold breach notifications
 - **⚖️ Policy Manager**: Configure organizational fairness thresholds and compliance targets
 - **♿ Accessibility**: Full keyboard navigation, screen reader support, and ARIA labels for inclusive access
-<<<<<<< C:/MyProjects/unbiased-ai-auditor/README.md
-<<<<<<< C:/MyProjects/unbiased-ai-auditor/README.md
-<<<<<<< C:/MyProjects/unbiased-ai-auditor/README.md
-<<<<<<< C:/MyProjects/unbiased-ai-auditor/README.md
->>>>>>> C:/Users/91833/.windsurf/worktrees/unbiased-ai-auditor/unbiased-ai-auditor-309517ff/README.md
-=======
->>>>>>> C:/Users/91833/.windsurf/worktrees/unbiased-ai-auditor/unbiased-ai-auditor-309517ff/README.md
-=======
->>>>>>> C:/Users/91833/.windsurf/worktrees/unbiased-ai-auditor/unbiased-ai-auditor-309517ff/README.md
-=======
->>>>>>> C:/Users/91833/.windsurf/worktrees/unbiased-ai-auditor/unbiased-ai-auditor-309517ff/README.md
-=======
->>>>>>> C:/Users/91833/.windsurf/worktrees/unbiased-ai-auditor/unbiased-ai-auditor-309517ff/README.md
 
 ### AI-Powered Features (Gemini 2.0 Flash)
 - **🤖 AI Narrative**: Automatically generates executive summaries of audit findings
@@ -81,36 +47,9 @@ Unbiased AI Auditor is a professional-grade tool designed for data scientists, c
 - **👔 HR Hiring Pipeline**: 500 candidates with gender and racial bias in screening
 - **🏦 Bank Loan Approval**: 400 loan applications with redlining patterns
 - **🏥 Healthcare Risk Scoring**: 350 patients modeling racial bias in health algorithms (Optum study)
-<<<<<<< C:/MyProjects/unbiased-ai-auditor/README.md
-<<<<<<< C:/MyProjects/unbiased-ai-auditor/README.md
-<<<<<<< C:/MyProjects/unbiased-ai-auditor/README.md
-<<<<<<< C:/MyProjects/unbiased-ai-auditor/README.md
-<<<<<<< C:/MyProjects/unbiased-ai-auditor/README.md
-=======
 - **⚖️ Criminal Justice Risk Assessment**: 450 records modeling recidivism prediction bias
 - **🎓 Education Admission Decisions**: 400 applications with socioeconomic status bias
 - **🏠 Insurance Premium Pricing**: 380 policies with location-based discrimination
->>>>>>> C:/Users/91833/.windsurf/worktrees/unbiased-ai-auditor/unbiased-ai-auditor-309517ff/README.md
-=======
-- **⚖️ Criminal Justice Risk Assessment**: 450 records modeling recidivism prediction bias
-- **🎓 Education Admission Decisions**: 400 applications with socioeconomic status bias
-- **🏠 Insurance Premium Pricing**: 380 policies with location-based discrimination
->>>>>>> C:/Users/91833/.windsurf/worktrees/unbiased-ai-auditor/unbiased-ai-auditor-309517ff/README.md
-=======
-- **⚖️ Criminal Justice Risk Assessment**: 450 records modeling recidivism prediction bias
-- **🎓 Education Admission Decisions**: 400 applications with socioeconomic status bias
-- **🏠 Insurance Premium Pricing**: 380 policies with location-based discrimination
->>>>>>> C:/Users/91833/.windsurf/worktrees/unbiased-ai-auditor/unbiased-ai-auditor-309517ff/README.md
-=======
-- **⚖️ Criminal Justice Risk Assessment**: 450 records modeling recidivism prediction bias
-- **🎓 Education Admission Decisions**: 400 applications with socioeconomic status bias
-- **🏠 Insurance Premium Pricing**: 380 policies with location-based discrimination
->>>>>>> C:/Users/91833/.windsurf/worktrees/unbiased-ai-auditor/unbiased-ai-auditor-309517ff/README.md
-=======
-- **⚖️ Criminal Justice Risk Assessment**: 450 records modeling recidivism prediction bias
-- **🎓 Education Admission Decisions**: 400 applications with socioeconomic status bias
-- **🏠 Insurance Premium Pricing**: 380 policies with location-based discrimination
->>>>>>> C:/Users/91833/.windsurf/worktrees/unbiased-ai-auditor/unbiased-ai-auditor-309517ff/README.md
 
 ## 🚀 Quick Start
 
@@ -152,125 +91,6 @@ Unbiased AI Auditor is a professional-grade tool designed for data scientists, c
 ### Cloud Deployment (Google Cloud Run)
 
 Deploy directly to Google Cloud Run with one command:
-<<<<<<< C:/MyProjects/unbiased-ai-auditor/README.md
-<<<<<<< C:/MyProjects/unbiased-ai-auditor/README.md
-<<<<<<< C:/MyProjects/unbiased-ai-auditor/README.md
-<<<<<<< C:/MyProjects/unbiased-ai-auditor/README.md
-```bash
-gcloud run deploy unbiased-ai \
-  --source . \
-  --set-env-vars="GEMINI_API_KEY=your_key" \
-  --allow-unauthenticated
-```
-
-### Docker Deployment
-
-Build and run with Docker:
-```bash
-# Build the image
-docker build -t unbiased-ai-auditor .
-
-# Run the container
-docker run -p 8080:8080 -e GEMINI_API_KEY=your_key unbiased-ai-auditor
-```
-
-## 🎯 How It Works
-
-1. **Load Data**: Upload your own CSV or use one of the built-in demo datasets
-2. **Configure**: Select protected attributes (e.g., gender, race), outcome columns, and reference groups
-3. **Measure**: Compute 8 industry-standard fairness metrics with regulatory thresholds
-4. **Analyze**: Explore visualizations, run counterfactual tests, and check intersectional bias
-5. **Mitigate**: Apply algorithmic debiasing strategies in the Mitigation Lab
-6. **Report**: Export a full audit report with regulatory compliance checklist
-
-## 📊 Fairness Metrics Explained
-
-### 1. Disparate Impact Ratio
-- **What it measures**: Ratio of selection rates between protected and reference groups
-- **Threshold**: ≥ 0.8 (EEOC 4/5ths Rule)
-- **Business impact**: Below 0.8 indicates adverse impact and potential legal liability
-
-### 2. Statistical Parity Difference
-- **What it measures**: Absolute difference in positive outcome rates between groups
-- **Threshold**: ≤ 0.1
-- **Business impact**: Measures overall outcome equity regardless of qualifications
-
-### 3. Equal Opportunity
-- **What it measures**: True Positive Rate (TPR) difference among qualified candidates
-- **Threshold**: ≤ 0.1
-- **Business impact**: Ensures equally qualified individuals have equal chances of positive decisions
-
-### 4. Equalized Odds
-- **What it measures**: Requires equal True Positive AND False Positive Rates across groups
-- **Threshold**: ≤ 0.1
-- **Business impact**: The strictest combined fairness criterion; ensures consistent error rates
-
-### 5. Predictive Parity
-- **What it measures**: Precision difference - accuracy of positive predictions per group
-- **Threshold**: ≤ 0.1
-- **Business impact**: Ensures positive predictions are equally reliable across groups
-
-### 6. Score Calibration
-- **What it measures**: Whether model scores carry the same meaning for all groups
-- **Threshold**: ≤ 0.1
-- **Business impact**: A score of 70 should imply the same outcome probability for everyone
-
-### 7. Individual Fairness
-- **What it measures**: Outcome consistency among similarly-qualified people across groups
-- **Threshold**: ≤ 0.15
-- **Business impact**: Ensures like cases are treated alike regardless of group membership
-
-### 8. Intersectionality
-- **What it measures**: Bias amplification at intersections of multiple protected attributes
-- **Threshold**: ≤ 0.25
-- **Business impact**: Detects compounded discrimination invisible to single-attribute analysis
-
-## 🖥️ Using the Application
-
-### Navigation Tabs
-- **Home**: Overview and quick access to demo datasets
-- **Data Explorer**: Upload CSVs and inspect data quality
-- **Bias Metrics**: View all 8 fairness metrics with detailed interpretations
-- **Visualizations**: Interactive charts and graphs
-- **What-If**: Counterfactual analysis for individual cases
-- **Bias Bounty**: Edge case testing for intersectional bias
-- **Mitigation Lab**: Apply and test debiasing strategies
-- **Monitoring**: Track model drift over time
-- **Policy**: Configure organizational fairness thresholds
-- **Audit Report**: Generate and export compliance reports
-
-### AI Features
-When running with a Gemini API key, you'll see ✨ AI buttons throughout the interface:
-- Click "Generate with Gemini" in the Report tab for executive summaries
-- Click "AI Recommendations" for prioritized remediation steps
-- Click "Explain with AI" on any metric card for plain-English explanations
-- Use the chat widget (bottom-right) to ask questions about your audit
-- Click "Get Python Remediation Code" in the Mitigation Lab for implementation code
-
-## 📁 Custom Datasets
-
-### CSV Format Requirements
-Your CSV should include:
-- **Protected attribute column**: Categorical (e.g., gender, race, age_group)
-- **Outcome column**: Binary numeric (0/1) indicating the decision
-- **Optional ground truth column**: Binary numeric (0/1) for actual qualification
-- **Optional score column**: Numeric score used in decision-making
-
-### Example CSV Structure
-```csv
-id,age,gender,race,education,experience_yrs,interview_score,qualified,hired
-1,28,Male,White,Bachelor's,5,72,1,1
-2,32,Female,Black,Master's,8,68,1,0
-3,25,Male,Hispanic,Bachelor's,3,65,1,0
-```
-
-=======
-=======
->>>>>>> C:/Users/91833/.windsurf/worktrees/unbiased-ai-auditor/unbiased-ai-auditor-309517ff/README.md
-=======
->>>>>>> C:/Users/91833/.windsurf/worktrees/unbiased-ai-auditor/unbiased-ai-auditor-309517ff/README.md
-=======
->>>>>>> C:/Users/91833/.windsurf/worktrees/unbiased-ai-auditor/unbiased-ai-auditor-309517ff/README.md
 ```bash
 gcloud run deploy unbiased-ai \
   --source . \
@@ -425,16 +245,6 @@ id,age,gender,race,education,experience_yrs,interview_score,qualified,hired
 3,25,Male,Hispanic,Bachelor's,3,65,1,0
 ```
 
-<<<<<<< C:/MyProjects/unbiased-ai-auditor/README.md
-<<<<<<< C:/MyProjects/unbiased-ai-auditor/README.md
-<<<<<<< C:/MyProjects/unbiased-ai-auditor/README.md
->>>>>>> C:/Users/91833/.windsurf/worktrees/unbiased-ai-auditor/unbiased-ai-auditor-309517ff/README.md
-=======
->>>>>>> C:/Users/91833/.windsurf/worktrees/unbiased-ai-auditor/unbiased-ai-auditor-309517ff/README.md
-=======
->>>>>>> C:/Users/91833/.windsurf/worktrees/unbiased-ai-auditor/unbiased-ai-auditor-309517ff/README.md
-=======
->>>>>>> C:/Users/91833/.windsurf/worktrees/unbiased-ai-auditor/unbiased-ai-auditor-309517ff/README.md
 See `EXAMPLE_DATASET.csv` for a complete template.
 
 ### Uploading Custom Data
