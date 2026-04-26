@@ -30,7 +30,7 @@ const BiasMetrics = {
 
     // Performance: Use sampling for large datasets
     const useSampling = data.length > this.LARGE_DATASET_THRESHOLD;
-    const analysisData = useSampling ? this._sampleData(data, this.SAMPLE_SIZE) : data;
+    const analysisData = useSampling ? this._sampleData(data, this.SAMPLE_SIZE, outcomeAttr) : data;
 
     const rates = this._selectionRates(analysisData, groups, protectedAttr, outcomeAttr);
     const refRate = rates[referenceGroup] ?? Math.max(...Object.values(rates));
@@ -61,7 +61,7 @@ const BiasMetrics = {
     if (hasScore) {
       results.counterfactualFairness = this.counterfactualFairness(analysisData, groups, protectedAttr, outcomeAttr, scoreAttr, referenceGroup);
     }
-    results.treatmentInequality = this.treatmentInequality(analysisData, groups, protectedAttr, outcomeAttr, referenceGroup);
+    results.treatmentInequality = this.treatmentInequality(analysisData, groups, protectedAttr, outcomeAttr, referenceGroup, config);
     results.consistency = this.consistency(analysisData, groups, protectedAttr, outcomeAttr, config);
     
     results.overallRisk = this._overallRisk(results);
@@ -70,28 +70,28 @@ const BiasMetrics = {
   },
 
   // Advanced: Stratified sampling to maintain group proportions for higher accuracy
-  _sampleData(data, sampleSize) {
+  _sampleData(data, sampleSize, outcomeAttr) {
     if (data.length <= sampleSize) return data;
-    
-    // Stratified sampling by outcome to maintain class balance
+
+    // Stratified sampling by outcome using the configured outcome attribute
     const outcomeCounts = {};
     data.forEach(r => {
-      const outcome = r.hired !== undefined ? r.hired : r.loan_approved !== undefined ? r.loan_approved : r.high_risk !== undefined ? r.high_risk : 0;
+      const outcome = outcomeAttr ? r[outcomeAttr] : Object.values(r)[Object.values(r).length - 1];
       outcomeCounts[outcome] = (outcomeCounts[outcome] || 0) + 1;
     });
-    
+
     const stratifiedSample = [];
     Object.entries(outcomeCounts).forEach(([outcome, count]) => {
       const proportion = count / data.length;
       const sampleCount = Math.floor(sampleSize * proportion);
       const outcomeData = data.filter(r => {
-        const o = r.hired !== undefined ? r.hired : r.loan_approved !== undefined ? r.loan_approved : r.high_risk !== undefined ? r.high_risk : 0;
-        return o === Number(outcome);
+        const o = outcomeAttr ? r[outcomeAttr] : Object.values(r)[Object.values(r).length - 1];
+        return String(o) === String(outcome);
       });
-      const shuffled = outcomeData.sort(() => Math.random() - 0.5);
+      const shuffled = [...outcomeData].sort(() => Math.random() - 0.5);
       stratifiedSample.push(...shuffled.slice(0, sampleCount));
     });
-    
+
     // Fill remaining with random sampling if needed
     if (stratifiedSample.length < sampleSize) {
       const remaining = sampleSize - stratifiedSample.length;
@@ -99,7 +99,7 @@ const BiasMetrics = {
       const additional = data.filter(r => !alreadySampled.has(r)).sort(() => Math.random() - 0.5).slice(0, remaining);
       stratifiedSample.push(...additional);
     }
-    
+
     return stratifiedSample.slice(0, sampleSize);
   },
 
@@ -420,17 +420,22 @@ const BiasMetrics = {
     return { value: Math.round(value * 1000) / 1000, threshold: t, status: this._status(value, t, t/2, 'below') };
   },
 
-  treatmentInequality(data, groups, protectedAttr, outcomeAttr, referenceGroup) {
+  treatmentInequality(data, groups, protectedAttr, outcomeAttr, referenceGroup, config) {
     // Measures the difference in average outcomes between groups after conditioning on similar features
-    // Simplified: compare outcome rates between groups within similar score buckets
-    if (!data.some(r => typeof r.interview_score === 'number' || typeof r.credit_score === 'number' || typeof r.health_score === 'number')) {
-      return { value: 0, threshold: 0.1, status: 'warning' };
+    // Uses the configured scoreAttr, with fallback to auto-detect
+    let scoreAttr = config && config.scoreAttr ? config.scoreAttr : null;
+
+    if (!scoreAttr) {
+      // Auto-detect: find first numeric non-binary column
+      const sample = data[0] || {};
+      scoreAttr = Object.keys(sample).find(k =>
+        k !== protectedAttr && k !== outcomeAttr &&
+        typeof sample[k] === 'number' && !(sample[k] === 0 || sample[k] === 1)
+      ) || Object.keys(sample).find(k =>
+        k !== protectedAttr && k !== outcomeAttr && typeof sample[k] === 'number'
+      );
     }
-    
-    const scoreAttr = data[0].interview_score ? 'interview_score' : 
-                      data[0].credit_score ? 'credit_score' : 
-                      data[0].health_score ? 'health_score' : null;
-    
+
     if (!scoreAttr) return { value: 0, threshold: 0.1, status: 'warning' };
     
     const buckets = [0, 33, 66, 100];

@@ -199,8 +199,11 @@ const MetricsUI = {
     );
   },
 
-  _card(status, name, desc, value, threshold, groups, interpretation) {
+  _card(status, name, desc, value, threshold, groups, interpretation, metricKey) {
     const color = status === 'critical' ? 'var(--danger)' : status === 'warning' ? 'var(--warning)' : 'var(--success)';
+    const aiBtn = (typeof AiUI !== 'undefined' && AiUI.isServerMode)
+      ? `<button class="ai-explain-btn" onclick="AiUI.explain(${JSON.stringify(name)},${JSON.stringify(String(value))},${JSON.stringify(status)},${JSON.stringify(threshold)},{},${JSON.stringify(metricKey||name)})">✨ Explain with AI</button>`
+      : '';
     return `<div class="metric-card ${status}">
       <div class="metric-card-header">
         <div>
@@ -220,6 +223,8 @@ const MetricsUI = {
           </div>`).join('')}
       </div>` : ''}
       <div class="metric-interpretation">${interpretation}</div>
+      ${aiBtn}
+      <div class="ai-explain-result" style="display:none;"></div>
     </div>`;
   },
 

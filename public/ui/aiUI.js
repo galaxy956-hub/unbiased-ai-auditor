@@ -15,13 +15,15 @@ const AiUI = {
   },
 
   async explain(metricName, value, status, threshold, groups, context) {
-    const btnSelector = `[data-explain="${metricName}"]`;
-    // Find and update the nearest explain result div
-    const allBtns = document.querySelectorAll('.ai-explain-btn');
-    let targetBtn = null;
-    allBtns.forEach(b => { if (b.textContent.includes('Explain with AI') && b.onclick?.toString().includes(metricName)) targetBtn = b; });
-
-    const resultDiv = targetBtn ? targetBtn.closest('.metric-card')?.querySelector('.ai-explain-result') : null;
+    // Find the ai-explain-result div closest to the clicked button for this metric
+    // Search by matching onclick string containing the metric name
+    let resultDiv = null;
+    document.querySelectorAll('.ai-explain-btn').forEach(btn => {
+      if (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(JSON.stringify(metricName))) {
+        const card = btn.closest('.metric-card');
+        if (card) resultDiv = card.querySelector('.ai-explain-result');
+      }
+    });
 
     if (resultDiv) {
       resultDiv.innerHTML = `<div class="ai-loading">✨ Gemini is thinking…</div>`;
@@ -192,11 +194,14 @@ const AiUI = {
     const ctx = {
       datasetLabel: (Datasets?.configs?.[AppState?.datasetKey] || {}).label || 'loaded dataset',
       config: AppState?.config || {},
-      metricsummary: {
+      metricSummary: {
         grade: AppState?.metrics?.overallRisk?.grade,
         score: AppState?.metrics?.overallRisk?.score,
         disparateImpact: AppState?.metrics?.disparateImpact?.value,
+        statisticalParity: AppState?.metrics?.statisticalParity?.value,
         equalOpportunity: AppState?.metrics?.equalOpportunity?.value,
+        intersectionality: AppState?.metrics?.intersectionality?.value,
+        criticalCount: Object.values(AppState?.metrics || {}).filter(v => v && v.status === 'critical').length,
       }
     };
 
