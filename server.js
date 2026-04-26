@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const { GoogleGenerativeAI } = require('@google/genai');
+const { GoogleGenAI } = require('@google/genai');
 require('dotenv').config();
 
 const app = express();
@@ -52,7 +52,7 @@ function getAI() {
   if (!ai) {
     const key = process.env.GEMINI_API_KEY;
     if (!key) throw new Error('GEMINI_API_KEY environment variable is not set.');
-    ai = new GoogleGenerativeAI(key);
+    ai = new GoogleGenAI({ apiKey: key });
   }
   return ai;
 }
@@ -61,9 +61,11 @@ const MODEL = 'gemini-2.0-flash';
 
 async function gemini(prompt) {
   const client = getAI();
-  const model = client.getGenerativeModel({ model: MODEL });
-  const response = await model.generateContent(prompt);
-  return response.response.text();
+  const response = await client.models.generateContent({
+    model: MODEL,
+    contents: prompt
+  });
+  return response.text;
 }
 
 // ── REST API: Datasets ────────────────────────────────────────────────────────
