@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#050d1a">
   <title>Unbiased AI Auditor — Detect & Fix Algorithmic Bias | Google Solution Challenge 2026</title>
-  <meta name="description" content="Detect, measure, and mitigate algorithmic bias in automated decision systems. AI-powered fairness auditing for hiring, lending, healthcare, and more — powered by Google Gemini.">
-  <meta name="keywords" content="AI fairness, bias detection, algorithmic bias, disparate impact, EEOC, EU AI Act, Gemini AI, Google Cloud">
+  <meta name="description" content="Detect, measure, and mitigate algorithmic bias in automated decision systems. AI-powered fairness auditing for hiring, lending, healthcare, and more — runs fully offline.">
+  <meta name="keywords" content="AI fairness, bias detection, algorithmic bias, disparate impact, EEOC, EU AI Act, Transformers.js, Google Cloud">
   <!-- Open Graph -->
   <meta property="og:title" content="Unbiased AI Auditor">
-  <meta property="og:description" content="Detect and fix algorithmic bias in automated decisions — powered by Google Gemini AI.">
+  <meta property="og:description" content="Detect and fix algorithmic bias in automated decisions — powered by offline AI.">
   <meta property="og:type" content="website">
   <meta property="og:image" content="/og-image.png">
   <!-- Twitter Card -->
@@ -31,23 +31,7 @@
     <p>Computing fairness metrics…</p>
   </div>
 
-  <!-- Tour overlay -->
-  <div id="tour-overlay" class="tour-overlay" style="display:none;" role="dialog" aria-modal="true" aria-label="Guided Tour">
-    <div class="tour-backdrop"></div>
-    <div class="tour-card" id="tour-card">
-      <div class="tour-step-indicator" id="tour-step-indicator"></div>
-      <div class="tour-icon" id="tour-icon"></div>
-      <h3 class="tour-title" id="tour-title"></h3>
-      <p class="tour-body" id="tour-body"></p>
-      <div class="tour-actions">
-        <button class="tour-skip" onclick="TourUI.end()">Skip Tour</button>
-        <div style="display:flex;gap:0.5rem;">
-          <button class="btn-outline btn-sm" id="tour-prev" onclick="TourUI.prev()" style="display:none;">← Back</button>
-          <button class="btn-primary btn-sm" id="tour-next" onclick="TourUI.next()">Next →</button>
-        </div>
-      </div>
-    </div>
-  </div>
+
 
   <nav id="main-nav" role="navigation" aria-label="Main navigation">
     <div class="nav-brand">
@@ -130,23 +114,18 @@
               <span class="sdg-name">Decent Work &<br>Economic Growth</span>
             </div>
           </div>
-          <span class="sdg-powered">Powered by <strong>Google Gemini AI</strong> &amp; <strong>Cloud Run</strong></span>
+          <span class="sdg-powered">Powered by <strong>Offline AI (Transformers.js)</strong> &amp; <strong>Google Cloud Run</strong></span>
         </div>
       </div>
 
       <div class="hero-section">
-        <div class="hero-bg-orbs">
-          <div class="orb orb-1"></div>
-          <div class="orb orb-2"></div>
-          <div class="orb orb-3"></div>
-        </div>
         <div class="hero-content">
           <div class="hero-badge">🏆 Google Solution Challenge 2026 — AI for Social Good</div>
           <h1 class="hero-title">Detecting Bias in<br><span class="gradient-text">Automated Decisions</span></h1>
           <p class="hero-subtitle">Computer programs now make life-changing decisions about who gets a job, a bank loan, or medical care. Unbiased AI gives organizations the tools to <strong>measure, flag, and fix</strong> algorithmic discrimination before it impacts real people.</p>
           <div class="hero-cta-row">
             <button class="btn-primary" id="start-audit-btn" onclick="AppState.loadDemo('hiring'); AppRouter.go('metrics');">Start Auditing →</button>
-            <button class="btn-outline" onclick="TourUI.start()">🎯 Take a Tour</button>
+
             <button class="btn-outline" onclick="AppRouter.go('explorer')">Upload Your Data</button>
           </div>
           <div class="hero-stats-row">
@@ -285,9 +264,9 @@
           <h2 class="section-title">Built with Google Technology</h2>
           <div class="tech-grid">
             <div class="tech-card">
-              <div class="tech-icon">✨</div>
-              <h4>Google Gemini 2.0 Flash</h4>
-              <p>Generates plain-English audit narratives, metric explanations, and Python remediation code</p>
+              <div class="tech-icon">🧠</div>
+              <h4>Transformers.js (Offline AI)</h4>
+              <p>Runs a local Qwen 0.5B language model entirely on-device — zero API keys, zero rate limits, 100% private</p>
             </div>
             <div class="tech-card">
               <div class="tech-icon">☁️</div>
@@ -375,8 +354,6 @@
   <script src="ui/monitorUI.js"></script>
   <script src="ui/policyUI.js"></script>
   <script src="ui/reportUI.js"></script>
-  <script src="ui/aiUI.js"></script>
-  <script src="ui/tourUI.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

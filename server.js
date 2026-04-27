@@ -1,8 +1,11 @@
 const express = require('express');
-const cors = require('cors');
 const path = require('path');
-const { GoogleGenAI } = require('@google/genai');
-require('dotenv').config();
+const { pipeline, env } = require('@xenova/transformers');
+const fallback = require('./fallbackAi');
+
+env.allowLocalModels = false;
+env.useBrowserCache = false;
+env.cacheDir = './.cache';
 
 const app = express();
 const PORT = parseInt(process.env.PORT) || 8080;
@@ -42,30 +45,43 @@ function rateLimit(req, res, next) {
 }
 
 // ── Middleware ────────────────────────────────────────────────────────────────
-app.use(cors());
 app.use(express.json({ limit: '2mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ── Gemini client (lazy init) ─────────────────────────────────────────────────
-let ai = null;
-function getAI() {
-  if (!ai) {
-    const key = process.env.GEMINI_API_KEY;
-    if (!key) throw new Error('GEMINI_API_KEY environment variable is not set.');
-    ai = new GoogleGenAI({ apiKey: key });
+// ── Offline AI client (Transformers.js) ────────────────────────────────────────
+let generator = null;
+let isInitializing = false;
+
+async function getAI() {
+  if (generator) return generator;
+  if (isInitializing) {
+    while(isInitializing) { await new Promise(r => setTimeout(r, 100)); }
+    return generator;
   }
-  return ai;
+  
+  try {
+    isInitializing = true;
+    console.log("Loading offline AI model into memory...");
+    generator = await pipeline('text-generation', 'Xenova/Qwen1.5-0.5B-Chat');
+    console.log("Offline AI model loaded successfully.");
+    isInitializing = false;
+    return generator;
+  } catch (error) {
+    isInitializing = false;
+    console.error("Failed to load local AI model:", error);
+    throw error;
+  }
 }
 
-const MODEL = 'gemini-2.0-flash';
-
-async function gemini(prompt) {
-  const client = getAI();
-  const response = await client.models.generateContent({
-    model: MODEL,
-    contents: prompt
-  });
-  return response.text;
+async function offlineAi(prompt) {
+  const ai = await getAI();
+  const messages = [
+    { role: "system", content: "You are an AI fairness expert auditor. Keep answers concise, plain language, and under 200 words. Do not use markdown headers." },
+    { role: "user", content: prompt }
+  ];
+  const text = ai.tokenizer.apply_chat_template(messages, { tokenize: false, add_generation_prompt: true });
+  const output = await ai(text, { max_new_tokens: 300, temperature: 0.1, do_sample: true });
+  return output[0].generated_text.replace(text, "").trim();
 }
 
 // ── REST API: Datasets ────────────────────────────────────────────────────────
@@ -221,11 +237,13 @@ Paragraph 2: Most critical specific findings and their real-world implications.
 Paragraph 3: Key recommended next steps.
 Use plain language. Mention specific groups and metrics. Be direct about severity. No bullet points. No markdown headers. Under 250 words.`;
 
-    const narrative = await gemini(prompt);
+    const narrative = await offlineAi(prompt);
     res.json({ narrative: narrative.trim() });
   } catch (err) {
-    console.error('/api/ai/narrative error:', err.message);
-    res.status(500).json({ error: err.message });
+    console.warn('Offline AI Error (Narrative), engaging fallback:', err.message);
+    const { metrics, config, datasetLabel, rowCount } = req.body;
+    const fallbackNarrative = fallback.generateNarrativeFallback(metrics, config, datasetLabel, rowCount);
+    res.json({ narrative: fallbackNarrative, isFallback: true });
   }
 });
 
@@ -241,11 +259,13 @@ app.post('/api/ai/explain', rateLimit, async (req, res) => {
 Result: ${value} (${status}), Regulatory threshold: ${threshold}
 ${groupText}Context: ${context || 'automated decision system'}
 Be specific: name actual impact on real people. Explain why this matters. Plain language. No jargon. No bullet points. No headers.`;
-    const explanation = await gemini(prompt);
+    const explanation = await offlineAi(prompt);
     res.json({ explanation: explanation.trim() });
   } catch (err) {
-    console.error('/api/ai/explain error:', err.message);
-    res.status(500).json({ error: err.message });
+    console.warn('Offline AI Error (Explain), engaging fallback:', err.message);
+    const { metricName, value, status, threshold, groups, context } = req.body;
+    const fallbackExplain = fallback.generateExplanationFallback(metricName, value, status, threshold, groups, context);
+    res.json({ explanation: fallbackExplain, isFallback: true });
   }
 });
 
@@ -262,11 +282,13 @@ app.post('/api/ai/recommend', rateLimit, async (req, res) => {
 Dataset: ${datasetLabel}, Protected attribute: ${config.protectedAttr}
 Critical violations: ${criticals}, Warnings: ${warnings}, Overall grade: ${metrics.overallRisk?.grade}
 Write exactly 4 numbered recommendations in order of priority. Each: specific and actionable, name the technique, expected impact, trade-offs. 2-3 sentences each. Plain language. No markdown headers.`;
-    const recommendations = await gemini(prompt);
+    const recommendations = await offlineAi(prompt);
     res.json({ recommendations: recommendations.trim() });
   } catch (err) {
-    console.error('/api/ai/recommend error:', err.message);
-    res.status(500).json({ error: err.message });
+    console.warn('Offline AI Error (Recommend), engaging fallback:', err.message);
+    const { metrics, config, datasetLabel } = req.body;
+    const fallbackRecs = fallback.generateRecommendationsFallback(metrics, config, datasetLabel);
+    res.json({ recommendations: fallbackRecs, isFallback: true });
   }
 });
 
@@ -290,14 +312,16 @@ Return in two parts:
 \`\`\`python
 ... code ...
 \`\`\``;
-    const result = await gemini(prompt);
+    const result = await offlineAi(prompt);
     const [explanation, codePart] = result.split('[CODE]');
     const cleanExplanation = explanation.replace('[EXPLANATION]', '').trim();
     const cleanCode = codePart ? codePart.trim() : '';
     res.json({ explanation: cleanExplanation, code: cleanCode });
   } catch (err) {
-    console.error('/api/ai/code error:', err.message);
-    res.status(500).json({ error: err.message });
+    console.warn('Offline AI Error (Code), engaging fallback:', err.message);
+    const { metrics, config, method, datasetLabel } = req.body;
+    const { explanation, code } = fallback.generateCodeFallback(metrics, config, method, datasetLabel);
+    res.json({ explanation, code, isFallback: true });
   }
 });
 
@@ -319,11 +343,13 @@ Current audit context:
 - Key metrics: ${JSON.stringify(ctx.metricSummary ?? {})}
 User question: "${message}"
 Answer in 2-4 sentences. Be specific to their audit results when possible. Use plain language for a business audience. If you don't have enough context, give a general educational answer about AI fairness. Do not use markdown.`;
-    const reply = await gemini(prompt);
+    const reply = await offlineAi(prompt);
     res.json({ reply: reply.trim() });
   } catch (err) {
-    console.error('/api/ai/chat error:', err.message);
-    res.status(500).json({ error: err.message });
+    console.warn('Offline AI Error (Chat), engaging fallback:', err.message);
+    const { message, context } = req.body;
+    const fallbackReply = fallback.generateChatFallback(message, context);
+    res.json({ reply: fallbackReply, isFallback: true });
   }
 });
 
@@ -332,9 +358,9 @@ app.get('/api/health', (req, res) => {
   res.json({
     status: 'ok',
     service: 'Unbiased AI Auditor',
-    version: '2.1.0',
-    model: MODEL,
-    aiEnabled: !!process.env.GEMINI_API_KEY,
+    version: '3.0.0',
+    model: 'Xenova/Qwen1.5-0.5B-Chat (Offline)',
+    aiEnabled: true,
     timestamp: new Date().toISOString(),
     sdgAlignment: ['SDG 10: Reduced Inequalities', 'SDG 16: Peace, Justice & Strong Institutions', 'SDG 8: Decent Work'],
   });
@@ -347,7 +373,7 @@ app.get('*', (req, res) => {
 
 // ── Start ─────────────────────────────────────────────────────────────────────
 app.listen(PORT, () => {
-  console.log(`🛡️  Unbiased AI Auditor v2.1.0 running on port ${PORT}`);
-  console.log(`✨  Gemini AI: ${process.env.GEMINI_API_KEY ? 'enabled (' + MODEL + ')' : 'disabled (set GEMINI_API_KEY)'}`);
+  console.log(`🛡️  Unbiased AI Auditor v3.0.0 running on port ${PORT}`);
+  console.log(`✨  Offline AI Engine (Transformers.js · Qwen1.5-0.5B-Chat)`);
   console.log(`🌍  SDG 10 · SDG 16 · SDG 8 — Google Solution Challenge 2026`);
 });

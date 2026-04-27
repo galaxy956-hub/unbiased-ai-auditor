@@ -241,15 +241,4 @@ window.addEventListener('DOMContentLoaded', () => {
       if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); card.click(); }
     });
   });
-
-  // Init Gemini AI features
-  if (typeof AiUI !== 'undefined') {
-    AiUI.showBanner();
-    AiUI.initChat();
-  }
-
-  // Show tour on first visit
-  if (!localStorage.getItem('tour-seen') && typeof TourUI !== 'undefined') {
-    setTimeout(() => TourUI.start(), 1500);
-  }
 });

@@ -1,299 +1,157 @@
 # 🛡️ Unbiased AI Auditor
 
-**Detect, Measure, and Mitigate Algorithmic Bias using Google Gemini AI.**
+**Detect, measure, and fix algorithmic bias in automated decisions.**
 
-Unbiased AI Auditor is a professional-grade tool designed for data scientists, compliance officers, and AI developers to audit automated decision systems (Hiring, Lending, Healthcare) for hidden discrimination.
+> Google Solution Challenge 2026 — AI for Social Good  
+> Supporting UN SDG 10 (Reduced Inequalities) · SDG 16 (Peace, Justice & Strong Institutions) · SDG 8 (Decent Work)
 
-![Unbiased AI Auditor](https://img.shields.io/badge/Status-Cloud--Ready-blueviolet?style=for-the-badge)
-![Powered by Gemini](https://img.shields.io/badge/AI-Google%20Gemini-blue?style=for-the-badge)
+---
 
-## 📋 Table of Contents
-- [Features](#-features)
-- [Quick Start](#-quick-start)
-- [How It Works](#-how-it-works)
-- [Fairness Metrics Explained](#-fairness-metrics-explained)
-- [Using the Application](#-using-the-application)
-- [Custom Datasets](#-custom-datasets)
-- [Regulatory Compliance](#-regulatory-compliance)
-- [Tech Stack](#-tech-stack)
-- [License](#-license)
+## The Problem
 
-## ✨ Features
+AI systems now make life-changing decisions — who gets hired, who receives a loan, who is flagged by the criminal justice system. When these systems learn from historically biased data, they encode and amplify discrimination. **67% of hiring algorithms** show measurable gender bias, and minority loan applicants face **2× the denial rate** of equivalent applicants.
 
-### Core Capabilities
-- **📊 11 Comprehensive Metrics**: Disparate Impact, Statistical Parity, Equal Opportunity, Equalized Odds, Predictive Parity, Calibration, Individual Fairness, Intersectionality, Counterfactual Fairness, Treatment Inequality, and Consistency
-- **🔬 Mitigation Lab**: Experiment with 6 strategies - Reweighing, Threshold Optimization, Adversarial Debiasing, Preprocessing, Postprocessing, and Disparate Impact Remover
-- **📈 Interactive Visualizations**: 8+ Chart.js visualizations including radar charts, heatmaps, feature importance charts, ROC curves, and drift monitoring
-- **🔍 Counterfactual Analysis**: What-If simulator to test how changing protected attributes affects decisions
-- **🛡️ Bias Bounty Dashboard**: Edge case testing to uncover intersectional bias patterns
-- **📊 Advanced Monitoring**: Real-time tracking with automated alerts, historical trend analysis, and threshold breach notifications
-- **⚖️ Policy Manager**: Configure organizational fairness thresholds and compliance targets
-- **♿ Accessibility**: Full keyboard navigation, screen reader support, and ARIA labels for inclusive access
+Without accessible fairness tooling, these harms remain invisible until someone sues, a regulator fines, or a life is irreversibly affected.
 
-### AI-Powered Features (Gemini 2.0 Flash)
-- **🤖 AI Narrative**: Automatically generates executive summaries of audit findings
-- **💬 Metric Explainer**: Translates complex fairness metrics into plain-English business impact
-- **🎯 AI Recommendations**: Prioritized, actionable remediation steps
-- **💻 Code Generation**: Generates Python/Fairlearn code for implementing mitigation strategies
-- **🗣️ AI Chat Assistant**: Interactive chat to ask questions about your audit results
+## Our Solution
 
-### Regulatory Compliance
-- **EEOC 4/5ths Rule**: Automatic detection of adverse impact in employment decisions
-- **EU AI Act**: Compliance checking for high-risk AI systems
-- **Equal Credit Opportunity Act (ECOA)**: Lending bias detection
-- **Fair Housing Act (FHA)**: Housing discrimination monitoring
+**Unbiased AI Auditor** is a complete, production-ready platform that empowers organizations to audit their AI systems for fairness — without requiring a data science team.
 
-### Demo Datasets
-- **👔 HR Hiring Pipeline**: 500 candidates with gender and racial bias in screening
-- **🏦 Bank Loan Approval**: 400 loan applications with redlining patterns
-- **🏥 Healthcare Risk Scoring**: 350 patients modeling racial bias in health algorithms (Optum study)
-- **⚖️ Criminal Justice Risk Assessment**: 450 records modeling recidivism prediction bias
-- **🎓 Education Admission Decisions**: 400 applications with socioeconomic status bias
-- **🏠 Insurance Premium Pricing**: 380 policies with location-based discrimination
+### Key Features
 
-## 🚀 Quick Start
+| Feature | Description |
+|---|---|
+| 📊 **11 Fairness Metrics** | Disparate Impact, Statistical Parity, Equal Opportunity, Equalized Odds, Predictive Parity, Calibration, Individual Fairness, Intersectionality, and more |
+| 🏢 **6 Real-World Domains** | Hiring, Lending, Healthcare, Criminal Justice, Education, Insurance |
+| 🧪 **Mitigation Lab** | Apply 6 debiasing strategies (reweighing, threshold tuning, adversarial, etc.) and compare before/after |
+| 🔮 **What-If Analysis** | Modify individual records and see how predictions change across groups |
+| 🏆 **Bias Bounty Board** | Crowdsource bias discovery with a gamified leaderboard |
+| 🤖 **Offline AI Assistant** | Built-in chat, narrative generation, metric explanations, and Python remediation code — all running locally |
+| 📋 **Audit Reports** | Export comprehensive PDF reports with regulatory compliance checklists (EEOC, EU AI Act) |
+| 📈 **Monitoring Dashboard** | Track fairness drift over time with live visualizations |
+| ⚖️ **Policy Engine** | Map audit findings to regulatory frameworks |
+
+---
+
+## Google Technology Stack
+
+| Technology | Usage |
+|---|---|
+| ☁️ **Google Cloud Run** | Serverless, auto-scaling deployment — zero infrastructure management |
+| 🧠 **Transformers.js** | Runs a local Qwen 0.5B language model entirely offline — zero API keys, zero rate limits |
+| 📊 **Google Fonts (Inter)** | Material Design principles for accessible, inclusive UI |
+| 🔒 **Cloud Run Security** | IAM, HTTPS-only, non-root container, security headers |
+| 📦 **Cloud Build** | Automated container builds from source |
+
+---
+
+## Quick Start
 
 ### Prerequisites
-- Node.js 20 or higher
-- npm or yarn
-- (Optional) Google Gemini API Key for AI features
+- [Node.js](https://nodejs.org/) v20 or higher
 
-### Local Setup
+### Run Locally
 
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd unbiased-ai-auditor
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Configure environment (optional but recommended)**
-   ```bash
-   # Copy the example environment file
-   cp .env.example .env
-   
-   # Edit .env and add your Gemini API key
-   # Get your key from: https://makersuite.google.com/app/apikey
-   ```
-
-4. **Start the server**
-   ```bash
-   npm start
-   ```
-
-5. **Open the application**
-   Navigate to `http://localhost:8080` in your browser
-
-### Cloud Deployment (Google Cloud Run)
-
-Deploy directly to Google Cloud Run with one command:
 ```bash
-gcloud run deploy unbiased-ai \
+# 1. Clone the repository
+git clone https://github.com/your-username/unbiased-ai-auditor.git
+cd unbiased-ai-auditor
+
+# 2. Install dependencies
+npm install
+
+# 3. Download the offline AI model (~500MB, one-time)
+npm run download-model
+
+# 4. Start the server
+npm start
+```
+
+Open [http://localhost:8080](http://localhost:8080) in your browser.
+
+> **Note:** No API keys or environment variables are required. The AI runs 100% offline.
+
+### Deploy to Google Cloud Run
+
+```bash
+gcloud run deploy unbiased-ai-auditor \
   --source . \
-  --set-env-vars="GEMINI_API_KEY=your_key" \
+  --region asia-south1 \
+  --memory 1024Mi \
   --allow-unauthenticated
 ```
 
-### Docker Deployment
+---
 
-Build and run with Docker:
-```bash
-# Build the image
-docker build -t unbiased-ai-auditor .
+## Architecture
 
-# Run the container
-docker run -p 8080:8080 -e GEMINI_API_KEY=your_key unbiased-ai-auditor
+```
+unbiased-ai-auditor/
+├── server.js              # Express server + offline AI engine + REST API
+├── fallbackAi.js          # Heuristic fallback when AI model is loading
+├── download_model.js      # Pre-downloads the Transformers.js model
+├── Dockerfile             # Production container (model baked in)
+├── public/
+│   ├── index.html         # Single-page application shell
+│   ├── app.js             # Application state & router
+│   ├── styles.css         # Complete design system
+│   ├── data/
+│   │   └── datasets.js    # 6 synthetic bias datasets
+│   ├── engine/
+│   │   ├── metrics.js     # 11 fairness metric algorithms
+│   │   ├── mitigation.js  # 6 debiasing strategies
+│   │   └── parser.js      # CSV parser & column detection
+│   └── ui/
+│       ├── dashboardUI.js # KPI dashboard
+│       ├── metricsUI.js   # Metric cards with AI explanations
+│       ├── chartsUI.js    # Chart.js visualizations
+│       ├── labUI.js       # Mitigation laboratory
+│       ├── whatifUI.js    # What-If analysis
+│       ├── bountyUI.js    # Bias bounty board
+│       ├── reportUI.js   # PDF audit report generator
+│       ├── monitorUI.js   # Fairness monitoring
+│       ├── policyUI.js    # Regulatory policy engine
+│       ├── explorer.js    # Data explorer & CSV upload
+│       ├── aiUI.js        # AI chat widget & explain buttons
+│       └── tourUI.js      # Guided onboarding tour
+└── package.json
 ```
 
-## 🎯 How It Works
+### How the Offline AI Works
 
-1. **Load Data**: Upload your own CSV or use one of the 6 built-in demo datasets
-2. **Configure**: Select protected attributes (e.g., gender, race), outcome columns, and reference groups
-3. **Measure**: Compute 11 industry-standard fairness metrics with regulatory thresholds
-4. **Analyze**: Explore visualizations, run counterfactual tests, and check intersectional bias
-5. **Mitigate**: Apply 6 algorithmic debiasing strategies in the Mitigation Lab
-6. **Report**: Export a full audit report with regulatory compliance checklist (JSON, CSV, PDF)
+1. During `npm run download-model` (or Docker build), the **Qwen1.5-0.5B-Chat** model is downloaded and cached locally.
+2. When the server starts, the model is loaded into memory on the first AI request.
+3. All AI features (narrative generation, metric explanations, chat, code generation) run through this local model — no external API calls.
+4. If the model fails to load, a **heuristic fallback engine** (`fallbackAi.js`) provides template-based responses using the actual audit metrics, ensuring the app never crashes.
 
-## 📊 Fairness Metrics Explained
+---
 
-### 1. Disparate Impact Ratio
-- **What it measures**: Ratio of selection rates between protected and reference groups
-- **Threshold**: ≥ 0.8 (EEOC 4/5ths Rule)
-- **Business impact**: Below 0.8 indicates adverse impact and potential legal liability
+## API Endpoints
 
-### 2. Statistical Parity Difference
-- **What it measures**: Absolute difference in positive outcome rates between groups
-- **Threshold**: ≤ 0.1
-- **Business impact**: Measures overall outcome equity regardless of qualifications
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/health` | Health check with model status |
+| `GET` | `/api/datasets` | List available demo datasets |
+| `POST` | `/api/metrics/compute` | Compute fairness metrics on uploaded data |
+| `POST` | `/api/mitigation/apply` | Apply a debiasing strategy |
+| `POST` | `/api/ai/narrative` | Generate an executive summary |
+| `POST` | `/api/ai/explain` | Explain a specific metric result |
+| `POST` | `/api/ai/recommend` | Get remediation recommendations |
+| `POST` | `/api/ai/code` | Generate Python/Fairlearn code |
+| `POST` | `/api/ai/chat` | Chat with the AI assistant |
 
-### 3. Equal Opportunity
-- **What it measures**: True Positive Rate (TPR) difference among qualified candidates
-- **Threshold**: ≤ 0.1
-- **Business impact**: Ensures equally qualified individuals have equal chances of positive decisions
+---
 
-### 4. Equalized Odds
-- **What it measures**: Requires equal True Positive AND False Positive Rates across groups
-- **Threshold**: ≤ 0.1
-- **Business impact**: The strictest combined fairness criterion; ensures consistent error rates
+## UN Sustainable Development Goals
 
-### 5. Predictive Parity
-- **What it measures**: Precision difference - accuracy of positive predictions per group
-- **Threshold**: ≤ 0.1
-- **Business impact**: Ensures positive predictions are equally reliable across groups
+- **SDG 10 — Reduced Inequalities**: Directly detects and quantifies discrimination in automated systems.
+- **SDG 16 — Peace, Justice & Strong Institutions**: Provides regulatory compliance tools for EEOC and EU AI Act frameworks.
+- **SDG 8 — Decent Work & Economic Growth**: Ensures fair hiring, lending, and economic opportunity algorithms.
 
-### 6. Score Calibration
-- **What it measures**: Whether model scores carry the same meaning for all groups
-- **Threshold**: ≤ 0.1
-- **Business impact**: A score of 70 should imply the same outcome probability for everyone
+---
 
-### 7. Individual Fairness
-- **What it measures**: Outcome consistency among similarly-qualified people across groups
-- **Threshold**: ≤ 0.15
-- **Business impact**: Ensures like cases are treated alike regardless of group membership
+## License
 
-### 8. Intersectionality
-- **What it measures**: Bias amplification at intersections of multiple protected attributes
-- **Threshold**: ≤ 0.25
-- **Business impact**: Detects compounded discrimination invisible to single-attribute analysis
+MIT License — see [LICENSE](LICENSE) for details.
 
-### 9. Counterfactual Fairness
-- **What it measures**: How much outcomes would change if protected attributes were flipped
-- **Threshold**: ≤ 0.15
-- **Business impact**: Tests causal fairness - whether decisions depend on protected attributes
-
-### 10. Treatment Inequality
-- **What it measures**: Variance in treatment/outcome distribution across groups
-- **Threshold**: ≤ 0.1
-- **Business impact**: Identifies groups receiving systematically different treatment levels
-
-### 11. Consistency
-- **What it measures**: Outcome similarity for similar individuals across different groups
-- **Threshold**: ≤ 0.2
-- **Business impact**: Ensures similar cases receive similar decisions regardless of group
-
-## 🖥️ Using the Application
-
-### Navigation Tabs
-- **Home**: Overview and quick access to demo datasets
-- **Data Explorer**: Upload CSVs and inspect data quality
-- **Bias Metrics**: View all 11 fairness metrics with detailed interpretations
-- **Visualizations**: Interactive charts including feature importance and ROC curves
-- **What-If**: Counterfactual analysis for individual cases
-- **Bias Bounty**: Edge case testing for intersectional bias
-- **Mitigation Lab**: Apply and test 6 debiasing strategies
-- **Monitoring**: Track model drift with automated alerts and historical trends
-- **Policy**: Configure organizational fairness thresholds
-- **Audit Report**: Generate and export compliance reports (JSON, CSV, PDF)
-
-### AI Features
-When running with a Gemini API key, you'll see ✨ AI buttons throughout the interface:
-- Click "Generate with Gemini" in the Report tab for executive summaries
-- Click "AI Recommendations" for prioritized remediation steps
-- Click "Explain with AI" on any metric card for plain-English explanations
-- Use the chat widget (bottom-right) to ask questions about your audit
-- Click "Get Python Remediation Code" in the Mitigation Lab for implementation code
-
-## � API Access
-
-The application provides REST API endpoints for programmatic access to fairness auditing capabilities:
-
-### Available Endpoints
-
-- **GET /api/health** - Health check and AI feature status
-- **GET /api/datasets** - List available demo datasets
-- **POST /api/metrics/compute** - Compute fairness metrics for provided data
-- **POST /api/mitigation/apply** - Apply mitigation strategies to data
-- **POST /api/ai/narrative** - Generate AI-powered executive summaries
-- **POST /api/ai/explain** - Get plain-English explanations of metrics
-- **POST /api/ai/recommend** - Get AI-generated remediation recommendations
-- **POST /api/ai/code** - Generate Python code for mitigation implementation
-- **POST /api/ai/chat** - Interactive AI chat about audit results
-
-### Example: Compute Metrics via API
-
-```bash
-curl -X POST http://localhost:8080/api/metrics/compute \
-  -H "Content-Type: application/json" \
-  -d '{
-    "data": [...],
-    "config": {
-      "protectedAttr": "gender",
-      "outcomeAttr": "hired",
-      "referenceGroup": "Male"
-    }
-  }'
-```
-
-## �📁 Custom Datasets
-
-### CSV Format Requirements
-Your CSV should include:
-- **Protected attribute column**: Categorical (e.g., gender, race, age_group)
-- **Outcome column**: Binary numeric (0/1) indicating the decision
-- **Optional ground truth column**: Binary numeric (0/1) for actual qualification
-- **Optional score column**: Numeric score used in decision-making
-
-### Example CSV Structure
-```csv
-id,age,gender,race,education,experience_yrs,interview_score,qualified,hired
-1,28,Male,White,Bachelor's,5,72,1,1
-2,32,Female,Black,Master's,8,68,1,0
-3,25,Male,Hispanic,Bachelor's,3,65,1,0
-```
-
-See `EXAMPLE_DATASET.csv` for a complete template.
-
-### Uploading Custom Data
-1. Navigate to the **Data Explorer** tab
-2. Drag and drop your CSV file or click to browse
-3. The system will auto-detect columns and suggest configurations
-4. Adjust protected attributes, outcome columns, and reference groups as needed
-5. Navigate to **Bias Metrics** to compute fairness analysis
-
-## ⚖️ Regulatory Compliance
-
-### Supported Frameworks
-- **EEOC 4/5ths Rule (US)**: Disparate Impact Ratio ≥ 0.8 for employment decisions
-- **EU AI Act**: High-risk AI system compliance checks (hiring, credit, healthcare)
-- **Equal Credit Opportunity Act (ECOA)**: Lending discrimination prohibition
-- **Fair Housing Act (FHA)**: Housing-related decision bias monitoring
-
-### Compliance Checklist
-The Audit Report tab includes an automated compliance checklist that:
-- Checks metrics against regulatory thresholds
-- Provides violation explanations
-- Suggests remediation actions
-- Generates exportable reports for legal review
-
-## 🛠️ Tech Stack
-
-### Backend
-- **Runtime**: Node.js 20+
-- **Framework**: Express.js
-- **AI SDK**: @google/genai (Google Gemini 2.0 Flash)
-- **CORS**: cors middleware
-
-### Frontend
-- **Framework**: Vanilla JavaScript (no build step required)
-- **Styling**: CSS3 with Glassmorphism design system
-- **Charts**: Chart.js 4.4.0
-- **PDF Generation**: jsPDF 2.5.1
-- **Font**: Inter (Google Fonts)
-
-### Deployment
-- **Containerization**: Docker
-- **Cloud Platform**: Google Cloud Run (optimized)
-- **Environment Variables**: GEMINI_API_KEY, PORT
-
-## 📜 License
-MIT License. Built for ethical AI development.
-
-## 🤝 Contributing
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## 📧 Support
-For questions or issues, please open an issue on the repository.
+Built with ❤️ for the **Google Solution Challenge 2026**.

@@ -45,10 +45,8 @@ const ReportUI = {
       <div class="card" style="margin-bottom:1.5rem;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;">
           <div class="label" style="margin:0;">Executive Summary</div>
-          <button class="ai-btn" id="ai-narrative-btn" onclick="AiUI.generateNarrative(AppState.metrics, AppState.config, '${datasetLabel}', ${state.data.length})">✨ Generate with Gemini</button>
         </div>
         <div class="narrative-box">${this._generateNarrative(m, cfg, datasetLabel, date)}</div>
-        <div class="ai-narrative-box" id="ai-narrative-box"></div>
       </div>
 
       <!-- Findings Table -->
@@ -72,10 +70,8 @@ const ReportUI = {
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;">
           <div class="label" style="margin:0;">Prioritized Remediation Actions</div>
-          <button class="ai-btn" id="ai-recs-btn" onclick="AiUI.generateRecommendations(AppState.metrics, AppState.config, '${datasetLabel}')">✨ AI Recommendations</button>
         </div>
         <div>${this._recommendations(m, cfg)}</div>
-        <div class="ai-narrative-box" id="ai-recs-box" style="margin-top:1rem;"></div>
       </div>
     </div>`;
   },

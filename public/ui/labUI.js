@@ -49,9 +49,7 @@ const LabUI = {
         </div>
         <div style="margin-top:1rem; display:flex; gap:0.75rem;">
           <button class="btn-primary" id="lab-run-btn" onclick="LabUI.run()">▶ Apply Mitigation</button>
-          <button class="ai-btn" id="ai-code-btn" onclick="AiUI.generateRemediationCode(AppState.metrics, AppState.config, '${method}', (Datasets.configs[AppState.datasetKey] || {}).label || 'Custom')">✨ Get Python Remediation Code</button>
         </div>
-        <div id="ai-code-box" class="ai-narrative-box" style="margin-top:1rem;"></div>
       </div>
 
       <!-- Results -->

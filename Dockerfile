@@ -11,6 +11,12 @@ RUN npm ci --only=production
 # Copy the rest of the app
 COPY . .
 
+# Download the local AI model so it is baked into the container image
+RUN node download_model.js
+
+# Change ownership to the non-root 'node' user before switching users
+RUN chown -R node:node /app
+
 # Cloud Run injects PORT; default 8080
 ENV PORT=8080
 EXPOSE 8080

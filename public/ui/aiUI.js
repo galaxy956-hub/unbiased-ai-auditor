@@ -1,4 +1,4 @@
-// AI UI — Gemini-powered features: metric explainer, chat widget, report narrative
+// AI UI — Local Offline AI features: metric explainer, chat widget, report narrative
 const AiUI = {
   // Detect if running via Node server (not file://) so AI calls can be made
   get isServerMode() {
@@ -26,7 +26,7 @@ const AiUI = {
     });
 
     if (resultDiv) {
-      resultDiv.innerHTML = `<div class="ai-loading">✨ Gemini is thinking…</div>`;
+      resultDiv.innerHTML = `<div class="ai-loading">✨ AI is thinking…</div>`;
       resultDiv.style.display = 'block';
     }
 
@@ -38,7 +38,8 @@ const AiUI = {
       });
       const data = await resp.json();
       if (resultDiv) {
-        resultDiv.innerHTML = `<div class="ai-result-text">✨ <strong>Gemini:</strong> ${data.explanation || data.error}</div>`;
+        const prefix = data.isFallback ? '⚡ <strong>[Fallback Rules]:</strong> ' : '✨ <strong>Offline AI:</strong> ';
+        resultDiv.innerHTML = `<div class="ai-result-text">${prefix}${data.explanation || data.error}</div>`;
       }
     } catch (err) {
       if (resultDiv) resultDiv.innerHTML = `<div class="ai-error">Failed to reach AI: ${err.message}</div>`;
@@ -53,7 +54,7 @@ const AiUI = {
 
     btn.disabled = true;
     btn.textContent = '✨ Generating…';
-    box.innerHTML = `<div class="ai-loading">✨ Gemini is writing your executive summary…</div>`;
+    box.innerHTML = `<div class="ai-loading">✨ Offline AI is writing your executive summary…</div>`;
     box.style.display = 'block';
 
     try {
@@ -63,7 +64,8 @@ const AiUI = {
         body: JSON.stringify({ metrics, config, datasetLabel, rowCount })
       });
       const data = await resp.json();
-      box.innerHTML = `<div class="ai-result-text">${data.narrative || data.error}</div>`;
+      const prefix = data.isFallback ? '<div style="color:var(--warning);font-size:0.75rem;margin-bottom:0.5rem;">⚡ Operating in Offline Fallback Mode</div>' : '';
+      box.innerHTML = `<div class="ai-result-text">${prefix}${data.narrative || data.error}</div>`;
     } catch (err) {
       box.innerHTML = `<div class="ai-error">Failed to reach AI: ${err.message}</div>`;
     } finally {
@@ -80,7 +82,7 @@ const AiUI = {
 
     btn.disabled = true;
     btn.textContent = '✨ Generating…';
-    box.innerHTML = `<div class="ai-loading">✨ Gemini is building your remediation plan…</div>`;
+    box.innerHTML = `<div class="ai-loading">✨ Offline AI is building your remediation plan…</div>`;
     box.style.display = 'block';
 
     try {
@@ -90,7 +92,8 @@ const AiUI = {
         body: JSON.stringify({ metrics, config, datasetLabel })
       });
       const data = await resp.json();
-      box.innerHTML = `<div class="ai-result-text">${(data.recommendations || data.error).replace(/\n/g, '<br>')}</div>`;
+      const prefix = data.isFallback ? '<div style="color:var(--warning);font-size:0.75rem;margin-bottom:0.5rem;">⚡ Operating in Offline Fallback Mode</div>' : '';
+      box.innerHTML = `<div class="ai-result-text">${prefix}${(data.recommendations || data.error).replace(/\n/g, '<br>')}</div>`;
     } catch (err) {
       box.innerHTML = `<div class="ai-error">Failed to reach AI: ${err.message}</div>`;
     } finally {
@@ -107,7 +110,7 @@ const AiUI = {
 
     btn.disabled = true;
     btn.textContent = '✨ Generating Code…';
-    box.innerHTML = `<div class="ai-loading">✨ Gemini is architecting your fairness pipeline…</div>`;
+    box.innerHTML = `<div class="ai-loading">✨ Offline AI is architecting your fairness pipeline…</div>`;
     box.style.display = 'block';
 
     try {
@@ -118,7 +121,8 @@ const AiUI = {
       });
       const data = await resp.json();
       
-      let html = `<div class="ai-result-text" style="margin-bottom:1rem;">${data.explanation}</div>`;
+      const prefix = data.isFallback ? '<div style="color:var(--warning);font-size:0.75rem;margin-bottom:0.5rem;">⚡ Operating in Offline Fallback Mode</div>' : '';
+      let html = `<div class="ai-result-text" style="margin-bottom:1rem;">${prefix}${data.explanation}</div>`;
       if (data.code) {
         // Extract code from markdown if present
         const code = data.code.includes('```') ? data.code.split('```')[1].replace('python\n', '') : data.code;
@@ -157,11 +161,11 @@ const AiUI = {
       </button>
       <div class="chat-panel" id="chat-panel" style="display:none;">
         <div class="chat-header">
-          <span>✨ Gemini Bias Assistant</span>
+          <span>✨ Offline AI Assistant</span>
           <button onclick="AiUI.toggleChat()" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1.2rem;">×</button>
         </div>
         <div class="chat-messages" id="chat-messages">
-          <div class="chat-msg ai-msg">Hi! I'm Gemini. Ask me anything about your fairness audit results — metrics, implications, or how to fix bias.</div>
+          <div class="chat-msg ai-msg">Hi! I am your local, offline AI Auditor. Ask me anything about your fairness audit results.</div>
         </div>
         <div class="chat-input-row">
           <input type="text" id="chat-input" placeholder="Ask about your audit…" onkeydown="if(event.key==='Enter')AiUI.sendChat()">
@@ -187,7 +191,7 @@ const AiUI = {
 
     // Add user message
     messages.innerHTML += `<div class="chat-msg user-msg">${msg}</div>`;
-    messages.innerHTML += `<div class="chat-msg ai-msg thinking" id="chat-thinking">Gemini is thinking…</div>`;
+    messages.innerHTML += `<div class="chat-msg ai-msg thinking" id="chat-thinking">AI is thinking…</div>`;
     messages.scrollTop = messages.scrollHeight;
 
     // Build context from AppState
@@ -214,7 +218,8 @@ const AiUI = {
       const data = await resp.json();
       const thinking = document.getElementById('chat-thinking');
       if (thinking) thinking.remove();
-      messages.innerHTML += `<div class="chat-msg ai-msg">${data.reply || data.error}</div>`;
+      const prefix = data.isFallback ? '⚡ ' : '';
+      messages.innerHTML += `<div class="chat-msg ai-msg">${prefix}${data.reply || data.error}</div>`;
     } catch (err) {
       const thinking = document.getElementById('chat-thinking');
       if (thinking) thinking.textContent = `Error: ${err.message}`;
@@ -227,7 +232,7 @@ const AiUI = {
     if (!this.isServerMode) {
       const banner = document.createElement('div');
       banner.className = 'ai-offline-banner';
-      banner.innerHTML = `⚡ Running in <strong>local file mode</strong>. AI features require the Node.js server. Run <code>npm start</code> to enable Gemini AI.`;
+      banner.innerHTML = `⚡ Running in <strong>local file mode</strong>. AI features require the Node.js server to run the local model. Run <code>npm start</code>.`;
       document.body.insertBefore(banner, document.body.firstChild);
       return;
     }
@@ -237,7 +242,7 @@ const AiUI = {
       if (!data.aiEnabled) {
         const banner = document.createElement('div');
         banner.className = 'ai-offline-banner';
-        banner.innerHTML = `⚠️ Gemini AI is disabled. Set the <code>GEMINI_API_KEY</code> environment variable and restart the server.`;
+        banner.innerHTML = `⚠️ Offline AI model failed to load during startup. Check server logs.`;
         document.body.insertBefore(banner, document.body.firstChild);
       }
     } catch (e) { /* ignore */ }
