@@ -155,22 +155,61 @@ const AiUI = {
     const widget = document.createElement('div');
     widget.id = 'ai-chat-widget';
     widget.innerHTML = `
-      <button class="chat-toggle" id="chat-toggle-btn" onclick="AiUI.toggleChat()">
-        <span class="chat-icon">✨</span>
+      <button class="chat-toggle" id="chat-toggle-btn" onclick="AiUI.toggleChat()" aria-label="Open AI Robot Assistant">
+        <div class="robot-face-mini">
+          <div class="robot-antenna"><div class="robot-antenna-ball"></div></div>
+          <div class="robot-head-mini">
+            <div class="robot-eyes-mini">
+              <div class="robot-eye-mini"></div>
+              <div class="robot-eye-mini"></div>
+            </div>
+            <div class="robot-mouth-mini"></div>
+          </div>
+        </div>
         <span class="chat-label">Ask AI</span>
+        <div class="robot-signal"></div>
       </button>
       <div class="chat-panel" id="chat-panel" style="display:none;">
-        <div class="chat-header">
-          <span>✨ Offline AI Assistant</span>
-          <button onclick="AiUI.toggleChat()" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1.2rem;">×</button>
+        <div class="chat-header robot-header">
+          <div class="robot-avatar">
+            <div class="robot-ear left-ear"></div>
+            <div class="robot-head">
+              <div class="robot-top-panel">
+                <div class="robot-bolt"></div>
+                <div class="robot-top-antenna"><div class="robot-top-ball"></div></div>
+                <div class="robot-bolt"></div>
+              </div>
+              <div class="robot-face-panel">
+                <div class="robot-visor">
+                  <div class="robot-eye left"></div>
+                  <div class="robot-eye right"></div>
+                </div>
+                <div class="robot-nose"></div>
+                <div class="robot-mouth-bar">
+                  <span class="robot-tooth"></span>
+                  <span class="robot-tooth"></span>
+                  <span class="robot-tooth"></span>
+                </div>
+              </div>
+            </div>
+            <div class="robot-ear right-ear"></div>
+          </div>
+          <div class="robot-header-text">
+            <span class="robot-name">AURA-7</span>
+            <span class="robot-status-line"><span class="robot-status-dot"></span>Online · Fairness AI</span>
+          </div>
+          <button onclick="AiUI.toggleChat()" class="robot-close-btn" aria-label="Close">×</button>
         </div>
         <div class="chat-messages" id="chat-messages">
-          <div class="chat-msg ai-msg">Hi! I am your local, offline AI Auditor. Ask me anything about your fairness audit results.</div>
+          <div class="chat-msg ai-msg robot-intro">
+            <span class="robot-prefix">🤖</span> Hello! I am <strong>AURA-7</strong>, your AI Fairness Auditor. Ask me anything about your bias audit results!
+          </div>
         </div>
         <div class="chat-input-row">
-          <input type="text" id="chat-input" placeholder="Ask about your audit…" onkeydown="if(event.key==='Enter')AiUI.sendChat()">
-          <button onclick="AiUI.sendChat()" class="chat-send-btn">↑</button>
+          <input type="text" id="chat-input" placeholder="Ask AURA-7 about your audit…" onkeydown="if(event.key==='Enter')AiUI.sendChat()">
+          <button onclick="AiUI.sendChat()" class="chat-send-btn" aria-label="Send">▶</button>
         </div>
+        <div class="robot-footer">⚙️ Powered by Offline AI · Transformers.js</div>
       </div>`;
     document.body.appendChild(widget);
   },
@@ -191,7 +230,7 @@ const AiUI = {
 
     // Add user message
     messages.innerHTML += `<div class="chat-msg user-msg">${msg}</div>`;
-    messages.innerHTML += `<div class="chat-msg ai-msg thinking" id="chat-thinking">AI is thinking…</div>`;
+    messages.innerHTML += `<div class="chat-msg ai-msg thinking" id="chat-thinking"><span class="robot-typing"><span></span><span></span><span></span></span> AURA-7 is processing…</div>`;
     messages.scrollTop = messages.scrollHeight;
 
     // Build context from AppState
@@ -218,11 +257,17 @@ const AiUI = {
       const data = await resp.json();
       const thinking = document.getElementById('chat-thinking');
       if (thinking) thinking.remove();
-      const prefix = data.isFallback ? '⚡ ' : '';
-      messages.innerHTML += `<div class="chat-msg ai-msg">${prefix}${data.reply || data.error}</div>`;
+      if (!resp.ok) {
+        const errMsg = data.error || `Server error (${resp.status})`;
+        messages.innerHTML += `<div class="chat-msg ai-msg robot-error">⚠️ ${errMsg}</div>`;
+      } else {
+        const prefix = data.isFallback ? '⚡ ' : '🤖 ';
+        messages.innerHTML += `<div class="chat-msg ai-msg">${prefix}${data.reply || data.error}</div>`;
+      }
     } catch (err) {
       const thinking = document.getElementById('chat-thinking');
-      if (thinking) thinking.textContent = `Error: ${err.message}`;
+      if (thinking) thinking.remove();
+      messages.innerHTML += `<div class="chat-msg ai-msg robot-error">⚠️ Could not reach AI: ${err.message}. Please check your connection.</div>`;
     }
     messages.scrollTop = messages.scrollHeight;
   },
@@ -264,22 +309,8 @@ _aiStyle.textContent = `
 .ai-narrative-box{margin-top:1rem;padding:1.2rem;background:rgba(99,102,241,.07);border:1px solid rgba(99,102,241,.2);border-radius:var(--radius-sm);display:none;}
 .ai-offline-banner{background:rgba(245,158,11,.15);border-bottom:1px solid rgba(245,158,11,.3);padding:.6rem 2rem;font-size:.8rem;color:var(--warning);text-align:center;}
 .ai-offline-banner code{background:rgba(245,158,11,.15);padding:.1rem .4rem;border-radius:4px;font-family:monospace;}
-/* Chat widget */
+/* Chat widget position — visual styles handled by ui/robot.css */
 #ai-chat-widget{position:fixed;bottom:1.5rem;right:1.5rem;z-index:200;font-family:Inter,sans-serif;}
-.chat-toggle{display:flex;align-items:center;gap:.5rem;background:linear-gradient(135deg,var(--primary),#4f46e5);border:none;color:#fff;padding:.7rem 1.2rem;border-radius:99px;cursor:pointer;font-size:.85rem;font-weight:600;box-shadow:0 4px 20px rgba(99,102,241,.5);transition:all .2s;}
-.chat-toggle:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(99,102,241,.6);}
-.chat-icon{font-size:1rem;}
-.chat-panel{position:absolute;bottom:3.5rem;right:0;width:340px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);flex-direction:column;overflow:hidden;max-height:500px;}
-.chat-header{padding:.8rem 1rem;background:linear-gradient(135deg,var(--primary),#4f46e5);display:flex;justify-content:space-between;align-items:center;font-size:.85rem;font-weight:600;color:#fff;}
-.chat-messages{flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:.6rem;min-height:200px;max-height:340px;}
-.chat-msg{padding:.65rem .85rem;border-radius:12px;font-size:.8rem;line-height:1.6;max-width:92%;}
-.ai-msg{background:var(--surface2);color:var(--text-dim);align-self:flex-start;border-radius:12px 12px 12px 3px;}
-.user-msg{background:linear-gradient(135deg,var(--primary),#4f46e5);color:#fff;align-self:flex-end;border-radius:12px 12px 3px 12px;}
-.thinking{font-style:italic;opacity:.7;}
-.chat-input-row{display:flex;gap:.5rem;padding:.75rem;border-top:1px solid var(--border);}
-#chat-input{flex:1;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:.5rem .8rem;border-radius:8px;font-size:.8rem;font-family:inherit;outline:none;}
-#chat-input:focus{border-color:var(--primary);}
-.chat-send-btn{background:var(--primary);border:none;color:#fff;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;}
 /* Code Blocks */
 .code-wrap{background:var(--bg);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-top:.5rem;}
 .code-header{padding:.4rem .8rem;background:var(--surface2);display:flex;justify-content:space-between;align-items:center;font-size:.7rem;color:var(--text-muted);border-bottom:1px solid var(--border);}
