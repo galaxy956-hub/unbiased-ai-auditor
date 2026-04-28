@@ -84,6 +84,14 @@ async function offlineAi(prompt) {
   return output[0].generated_text.replace(text, "").trim();
 }
 
+// Timeout wrapper — ensures AI calls fail fast and use fallback before Cloud Run times out
+function withTimeout(promise, ms) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => setTimeout(() => reject(new Error(`AI timeout after ${ms}ms`)), ms))
+  ]);
+}
+
 // ── REST API: Datasets ────────────────────────────────────────────────────────
 /**
  * GET /api/datasets
@@ -237,7 +245,7 @@ Paragraph 2: Most critical specific findings and their real-world implications.
 Paragraph 3: Key recommended next steps.
 Use plain language. Mention specific groups and metrics. Be direct about severity. No bullet points. No markdown headers. Under 250 words.`;
 
-    const narrative = await offlineAi(prompt);
+    const narrative = await withTimeout(offlineAi(prompt), 45000);
     res.json({ narrative: narrative.trim() });
   } catch (err) {
     console.warn('Offline AI Error (Narrative), engaging fallback:', err.message);
@@ -259,7 +267,7 @@ app.post('/api/ai/explain', rateLimit, async (req, res) => {
 Result: ${value} (${status}), Regulatory threshold: ${threshold}
 ${groupText}Context: ${context || 'automated decision system'}
 Be specific: name actual impact on real people. Explain why this matters. Plain language. No jargon. No bullet points. No headers.`;
-    const explanation = await offlineAi(prompt);
+    const explanation = await withTimeout(offlineAi(prompt), 45000);
     res.json({ explanation: explanation.trim() });
   } catch (err) {
     console.warn('Offline AI Error (Explain), engaging fallback:', err.message);
@@ -282,7 +290,7 @@ app.post('/api/ai/recommend', rateLimit, async (req, res) => {
 Dataset: ${datasetLabel}, Protected attribute: ${config.protectedAttr}
 Critical violations: ${criticals}, Warnings: ${warnings}, Overall grade: ${metrics.overallRisk?.grade}
 Write exactly 4 numbered recommendations in order of priority. Each: specific and actionable, name the technique, expected impact, trade-offs. 2-3 sentences each. Plain language. No markdown headers.`;
-    const recommendations = await offlineAi(prompt);
+    const recommendations = await withTimeout(offlineAi(prompt), 45000);
     res.json({ recommendations: recommendations.trim() });
   } catch (err) {
     console.warn('Offline AI Error (Recommend), engaging fallback:', err.message);
@@ -312,7 +320,7 @@ Return in two parts:
 \`\`\`python
 ... code ...
 \`\`\``;
-    const result = await offlineAi(prompt);
+    const result = await withTimeout(offlineAi(prompt), 45000);
     const [explanation, codePart] = result.split('[CODE]');
     const cleanExplanation = explanation.replace('[EXPLANATION]', '').trim();
     const cleanCode = codePart ? codePart.trim() : '';
@@ -343,7 +351,7 @@ Current audit context:
 - Key metrics: ${JSON.stringify(ctx.metricSummary ?? {})}
 User question: "${message}"
 Answer in 2-4 sentences. Be specific to their audit results when possible. Use plain language for a business audience. If you don't have enough context, give a general educational answer about AI fairness. Do not use markdown.`;
-    const reply = await offlineAi(prompt);
+    const reply = await withTimeout(offlineAi(prompt), 45000);
     res.json({ reply: reply.trim() });
   } catch (err) {
     console.warn('Offline AI Error (Chat), engaging fallback:', err.message);

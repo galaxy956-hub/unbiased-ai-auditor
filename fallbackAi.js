@@ -70,7 +70,53 @@ print("Mitigation applied successfully.")`;
 }
 
 function generateChatFallback(message, context) {
-    return `[Fallback Mode]: The local AI model is still loading into memory (this is a one-time process). I can provide general guidance based on your audit results. Your overall grade is ${context?.metricSummary?.grade || 'unknown'}. Please refer to the specific metric cards for detailed breakdowns, or try again in a moment.`;
+    const q = (message || '').toLowerCase();
+    const grade = context?.metricSummary?.grade || 'N/A';
+    const score = context?.metricSummary?.score || 'N/A';
+    const di    = context?.metricSummary?.disparateImpact;
+    const sp    = context?.metricSummary?.statisticalParity;
+    const dataset = context?.datasetLabel || 'your dataset';
+    const attr    = context?.config?.protectedAttr || 'the protected attribute';
+    const ref     = context?.config?.referenceGroup || 'the reference group';
+
+    if (q.includes('disparate impact') || q.includes('4/5') || q.includes('80%') || q.includes('di ratio')) {
+        const diVal = di != null ? `Your current Disparate Impact Ratio is ${di.toFixed(3)}.` : '';
+        return `Disparate Impact (DI) measures whether one group is selected at a significantly lower rate than another. ${diVal} The US EEOC "4/5ths rule" sets the threshold at 0.8: anything below that signals potential discrimination. A score below 0.6 is critical and indicates systemic bias that must be fixed before deployment. Navigate to the Bias Metrics tab to see a full group-by-group breakdown.`;
+    }
+
+    if (q.includes('statistical parity') || q.includes('parity difference') || q.includes('selection rate')) {
+        const spVal = sp != null ? `Your dataset shows a Statistical Parity Difference of ${sp.toFixed(3)}.` : '';
+        return `Statistical Parity measures the absolute difference in outcome rates between demographic groups. ${spVal} A gap above 0.1 (10%) is a warning; above 0.15 is critical. For ${dataset}, this means ${attr} groups receive different outcome rates even when other factors are comparable. You can apply threshold optimization or reweighing in the Mitigation Lab tab to reduce this gap.`;
+    }
+
+    if (q.includes('grade') || q.includes('score') || q.includes('overall') || q.includes('how bad') || q.includes('result')) {
+        const descs = { A:'excellent — meets most fairness standards', B:'good — minor issues to monitor', C:'moderate — meaningful bias present', D:'poor — significant violations needing urgent action', F:'failing — critical violations with serious legal risk' };
+        return `Your audit of ${dataset} received Grade ${grade} (${score}/100) — ${descs[grade] || 'review recommended'}. This is computed across multiple fairness metrics. A grade of D or F means the system should not be deployed without applying mitigation steps first. Use the Mitigation Lab tab to simulate debiasing strategies.`;
+    }
+
+    if (q.includes('equal opportunity') || q.includes('true positive') || q.includes('tpr')) {
+        return `Equal Opportunity checks that qualified individuals from all groups are correctly identified at similar rates (equal True Positive Rates). If this metric fails for ${dataset}, it means genuinely qualified people in disadvantaged ${attr} groups are being rejected at higher rates than equally qualified peers — a direct form of algorithmic discrimination. The threshold is a difference below 0.1.`;
+    }
+
+    if (q.includes('fix') || q.includes('mitigat') || q.includes('reduc') || q.includes('improve') || q.includes('debias')) {
+        return `For ${dataset} with bias in "${attr}", top mitigation strategies are: (1) Reweighing — increase weights for under-represented groups in training; (2) Threshold Optimization — set different decision thresholds per group to equalize rates; (3) Adversarial Debiasing — penalize the model for using group membership as a predictor; (4) Feature Auditing — remove proxy variables like zip code that encode protected attributes indirectly. Try these in the Mitigation Lab tab.`;
+    }
+
+    if (q.includes('what is bias') || q.includes('algorithmic bias') || q.includes('ai bias') || q.includes('definition') || q.includes('explain')) {
+        return `Algorithmic bias occurs when an AI system produces outcomes that systematically disadvantage certain groups based on protected characteristics like race, gender, or age. It usually happens because the model learned from historically biased data, uses proxy variables that correlate with protected attributes, or optimized only for accuracy without fairness constraints. It affects high-stakes areas like hiring, lending, healthcare, and criminal justice.`;
+    }
+
+    if (q.includes('legal') || q.includes('regulat') || q.includes('eeoc') || q.includes('eu ai act') || q.includes('law') || q.includes('complian')) {
+        return `Key regulatory frameworks: EEOC "4/5ths rule" (US) requires Disparate Impact > 0.8 for employment decisions. EU AI Act (2024) classifies hiring and credit AI as "high-risk" requiring mandatory bias audits. The Fair Housing Act and Equal Credit Opportunity Act prohibit discriminatory lending algorithms. Your current Grade ${grade} should be reviewed against these requirements — a grade of D or F may indicate compliance risk.`;
+    }
+
+    if (q.includes('protect') || q.includes('group') || q.includes('attribute') || q.includes(attr.toLowerCase())) {
+        return `In your ${dataset} audit, "${attr}" is the protected attribute monitored for bias, with "${ref}" as the reference group. Fairness metrics measure whether other ${attr} groups receive outcomes at comparable rates to ${ref}. You can change the protected attribute in the Config Bar at the top of the page to explore bias across different demographic dimensions.`;
+    }
+
+    // Default rich contextual answer
+    const diNote = di != null && di < 0.8 ? ` The Disparate Impact Ratio of ${di.toFixed(3)} is below the 0.8 regulatory threshold — this is a legal concern.` : '';
+    return `Based on your ${dataset} audit (Grade: ${grade}, Score: ${score}/100), fairness issues were detected in "${attr}".${diNote} I can answer questions about: Disparate Impact, Statistical Parity, Equal Opportunity, mitigation strategies, regulatory compliance (EEOC, EU AI Act), or how the audit works. What would you like to know?`;
 }
 
 module.exports = {
