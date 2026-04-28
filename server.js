@@ -91,12 +91,12 @@ async function offlineAi(prompt) {
  */
 app.get('/api/datasets', (req, res) => {
   const datasets = [
-    { key: 'hiring',    label: 'HR Hiring Pipeline',              rows: 500, columns: 8, biasLevel: 'high',     protectedAttr: 'gender',  outcomeAttr: 'hired',        description: '500 candidates across gender and racial groups. Uncovers disparate impact in technical role screening.' },
-    { key: 'lending',   label: 'Bank Loan Approval',              rows: 400, columns: 9, biasLevel: 'moderate', protectedAttr: 'race',    outcomeAttr: 'loan_approved', description: '400 loan applications. Reveals redlining patterns and age-based discrimination.' },
-    { key: 'healthcare',label: 'Healthcare Risk Scoring',         rows: 350, columns: 8, biasLevel: 'high',     protectedAttr: 'race',    outcomeAttr: 'high_risk',    description: '350 patients. Models documented racial bias in commercial health risk algorithms (Optum study).' },
-    { key: 'criminal',  label: 'Criminal Justice Risk Assessment',rows: 450, columns: 7, biasLevel: 'high',     protectedAttr: 'race',    outcomeAttr: 'flagged',      description: '450 records modeling recidivism prediction bias similar to COMPAS.' },
-    { key: 'education', label: 'Education Admission Decisions',   rows: 400, columns: 8, biasLevel: 'moderate', protectedAttr: 'ses',     outcomeAttr: 'admitted',     description: '400 applications with socioeconomic status bias.' },
-    { key: 'insurance', label: 'Insurance Premium Pricing',       rows: 380, columns: 7, biasLevel: 'moderate', protectedAttr: 'location',outcomeAttr: 'high_premium', description: '380 policies with location-based discrimination.' },
+    { key: 'hiring',    label: 'HR Hiring Pipeline',              rows: 500, columns: 8, biasLevel: 'high',     protectedAttr: 'gender',             outcomeAttr: 'hired',             description: '500 candidates across gender and racial groups. Uncovers disparate impact in technical role screening.' },
+    { key: 'lending',   label: 'Bank Loan Approval',              rows: 400, columns: 9, biasLevel: 'moderate', protectedAttr: 'race',               outcomeAttr: 'approved',          description: '400 loan applications. Reveals redlining patterns and age-based discrimination.' },
+    { key: 'healthcare',label: 'Healthcare Risk Scoring',         rows: 350, columns: 8, biasLevel: 'high',     protectedAttr: 'race',               outcomeAttr: 'flagged_high_risk', description: '350 patients. Models documented racial bias in commercial health risk algorithms (Optum study).' },
+    { key: 'criminal',  label: 'Criminal Justice Risk Assessment',rows: 450, columns: 7, biasLevel: 'high',     protectedAttr: 'race',               outcomeAttr: 'recidivism_flagged',description: '450 records modeling recidivism prediction bias similar to COMPAS.' },
+    { key: 'education', label: 'Education Admission Decisions',   rows: 400, columns: 8, biasLevel: 'moderate', protectedAttr: 'socioeconomic_status',outcomeAttr: 'admitted',          description: '400 applications with socioeconomic status bias.' },
+    { key: 'insurance', label: 'Insurance Premium Pricing',       rows: 380, columns: 7, biasLevel: 'moderate', protectedAttr: 'location_type',      outcomeAttr: 'high_premium',      description: '380 policies with location-based discrimination.' },
   ];
   res.json({ datasets, count: datasets.length });
 });

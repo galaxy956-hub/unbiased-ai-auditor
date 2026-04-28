@@ -70,7 +70,7 @@ print("Mitigation applied successfully.")`;
 }
 
 function generateChatFallback(message, context) {
-    return `[Fallback Mode]: I am currently operating offline due to API quota limits. I can provide general guidance based on your audit results. Your overall grade is ${context?.metricSummary?.grade || 'unknown'}. Please refer to the specific metric cards for detailed breakdowns.`;
+    return `[Fallback Mode]: The local AI model is still loading into memory (this is a one-time process). I can provide general guidance based on your audit results. Your overall grade is ${context?.metricSummary?.grade || 'unknown'}. Please refer to the specific metric cards for detailed breakdowns, or try again in a moment.`;
 }
 
 module.exports = {

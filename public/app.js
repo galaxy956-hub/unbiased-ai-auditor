@@ -228,6 +228,12 @@ window.addEventListener('DOMContentLoaded', () => {
   AppState.loadDemo('hiring');
   AppRouter.go('home');
 
+  // Initialize AI chat widget and server status banner
+  if (typeof AiUI !== 'undefined') {
+    AiUI.showBanner();
+    AiUI.initChat();
+  }
+
   // Tab click listeners
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
